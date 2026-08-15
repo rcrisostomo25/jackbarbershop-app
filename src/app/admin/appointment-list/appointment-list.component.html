@@ -1,0 +1,108 @@
+<div class="appointment-list-container">
+  <!-- Header -->
+  <div class="appointment-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1>📅 Agenda de Citas</h1>
+        <p>Gestiona todas las citas de los barberos</p>
+      </div>
+      <button 
+        *ngIf="currentUser()?.role === 'admin'"
+        class="btn btn-success btn-sm new-appointment-btn" 
+        (click)="openAppointmentForm()"
+      >
+        ➕ Nueva Cita
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-spinner" *ngIf="isLoading()">
+    <div class="spinner"></div>
+    <p>Cargando citas...</p>
+  </div>
+
+  <!-- Calendar View -->
+  <div class="calendar-section" *ngIf="!isLoading()">
+    <!-- Calendar Navigation -->
+    <div class="calendar-header">
+      <button class="nav-btn" (click)="previousMonth()">◀ Anterior</button>
+      <h2 class="month-title">{{ getMonthName() }}</h2>
+      <button class="nav-btn" (click)="nextMonth()">Siguiente ▶</button>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="calendar-grid">
+      <!-- Day names -->
+      <div class="day-header">Domingo</div>
+      <div class="day-header">Lunes</div>
+      <div class="day-header">Martes</div>
+      <div class="day-header">Miércoles</div>
+      <div class="day-header">Jueves</div>
+      <div class="day-header">Viernes</div>
+      <div class="day-header">Sábado</div>
+
+      <!-- Calendar days -->
+      <div 
+        *ngFor="let day of calendarDays()"
+        class="calendar-day"
+        [class.other-month]="!isCurrentMonth(day)"
+        [class.today]="isTodayDate(day)"
+      >
+        <div class="day-number">{{ day.getDate() }}</div>
+        
+        <div class="appointments-in-day">
+          <div 
+            *ngFor="let apt of getAppointmentsForDate(day)"
+            class="appointment-badge"
+            [class.scheduled]="apt.status === 'scheduled'"
+            [class.completed]="apt.status === 'completed'"
+            [class.cancelled]="apt.status === 'cancelled'"
+            (click)="openEditAppointmentModal(apt)"
+          >
+            <div class="apt-time">{{ formatTime(apt.appointmentTime) }}</div>
+            <div class="apt-barber">{{ apt.barberName }}</div>
+            <div class="apt-client">{{ apt.clientName }}</div>
+          </div>
+        </div>
+
+        <!-- Add appointment button for admin -->
+        <button 
+          *ngIf="currentUser()?.role === 'admin' && isCurrentMonth(day)"
+          class="add-apt-btn"
+          (click)="openAppointmentForm(day)"
+          title="Agregar cita"
+        >
+          +
+        </button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="calendar-legend">
+      <div class="legend-item">
+        <span class="legend-box scheduled"></span>
+        <span>Programada</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-box completed"></span>
+        <span>Completada</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-box cancelled"></span>
+        <span>Cancelada</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointment Form Modal -->
+  <div class="modal-overlay" *ngIf="showAppointmentForm()">
+    <app-appointment-form
+      [isEditMode]="isEditMode()"
+      [initialData]="formData()"
+      [barbers]="barbers()"
+      (appointmentSaved)="onAppointmentSaved($any($event))"
+      (modalClosed)="closeAppointmentForm()"
+    ></app-appointment-form>
+  </div>
+</div>

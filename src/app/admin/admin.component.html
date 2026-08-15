@@ -1,0 +1,432 @@
+<div class="admin-dashboard">
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="header-content">
+      <div>
+        <h1>⚙️ Panel de Administración</h1>
+        <p>Bienvenido, {{ currentUser?.displayName }}</p>
+      </div>
+      <button class="btn btn-outline-danger" (click)="logout()">Cerrar Sesión</button>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="admin-nav">
+    <div class="nav-buttons">
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'stats'"
+        (click)="setActiveTab('stats')">
+        📊 Estadísticas
+      </button>
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'customers'"
+        (click)="setActiveTab('customers')">
+        👤 Clientes ({{ customers().length }})
+      </button>
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'barbers'"
+        (click)="setActiveTab('barbers')">
+        ✂️ Barberos ({{ barbers().length }})
+      </button>
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'admins'"
+        (click)="setActiveTab('admins')">
+        ⚙️ Administradores ({{ admins().length }})
+      </button>
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'products'"
+        (click)="setActiveTab('products')">
+        📦 Productos
+      </button>
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'visits'"
+        (click)="setActiveTab('visits')">
+        📝 Visitas
+      </button>
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'fidelization-report'"
+        (click)="setActiveTab('fidelization-report')">
+        📊 Reporte Fidelización
+      </button>
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab() === 'appointments'"
+        (click)="setActiveTab('appointments')">
+        📅 Citas
+      </button>
+    </div>
+  </nav>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading()" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Cargando datos...</p>
+  </div>
+
+  <!-- Content -->
+  <main class="admin-content" *ngIf="!isLoading()">
+    <!-- ESTADÍSTICAS TAB -->
+    <section *ngIf="activeTab() === 'stats'" class="tab-content stats-tab">
+      <h2>Estadísticas General</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <h3>Total de Usuarios</h3>
+            <p class="stat-number">{{ stats().totalUsers }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card customer-card">
+          <div class="stat-icon">👤</div>
+          <div class="stat-info">
+            <h3>Clientes</h3>
+            <p class="stat-number">{{ stats().customers }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card barber-card">
+          <div class="stat-icon">✂️</div>
+          <div class="stat-info">
+            <h3>Barberos</h3>
+            <p class="stat-number">{{ stats().barbers }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card admin-card">
+          <div class="stat-icon">⚙️</div>
+          <div class="stat-info">
+            <h3>Administradores</h3>
+            <p class="stat-number">{{ stats().admins }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <h3>Acciones Rápidas</h3>
+        <div class="actions-grid">
+          <button class="action-btn" (click)="setActiveTab('customers')">
+            <span>👤</span>
+            <span>Ver Clientes</span>
+          </button>
+          <button class="action-btn" (click)="setActiveTab('barbers')">
+            <span>✂️</span>
+            <span>Ver Barberos</span>
+          </button>
+          <button class="action-btn" (click)="setActiveTab('admins')">
+            <span>⚙️</span>
+            <span>Ver Administradores</span>
+          </button>
+          <button class="action-btn" (click)="loadData()">
+            <span>🔄</span>
+            <span>Actualizar Datos</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CUSTOMERS TAB -->
+    <section *ngIf="activeTab() === 'customers'" class="tab-content users-tab">
+      <div class="tab-header">
+        <h2>👤 Gestión de Clientes</h2>
+        <div class="header-actions">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Buscar por nombre, email o teléfono..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="searchQuery.set($event)">
+          <button 
+            class="btn btn-outline-primary btn-sm"
+            (click)="openUserFormModal('customer')">
+            ➕ Crear Cliente
+          </button>
+        </div>
+      </div>
+
+      <div class="users-list">
+        <div *ngIf="filterUsers(customers()).length === 0" class="empty-state">
+          <p>No hay clientes registrados</p>
+        </div>
+
+        <div 
+          *ngFor="let customer of filterUsers(customers())" 
+          class="user-card"
+          [class.selected]="selectedUser()?.id === customer.id"
+          (click)="selectUser(customer)">
+          
+          <div class="user-header">
+            <div class="user-info">
+              <h4>{{ customer.displayName }}</h4>
+              <p class="email">{{ customer.email }}</p>
+            </div>
+            <span class="role-badge customer">👤 Cliente</span>
+          </div>
+
+          <div *ngIf="selectedUser()?.id === customer.id" class="user-details">
+            <div class="detail-row">
+              <span class="label">Teléfono:</span>
+              <span class="value">{{ customer.phone || '-' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Creado:</span>
+              <span class="value">{{ formatDate(customer.createdAt) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Última actualización:</span>
+              <span class="value">{{ formatDate(customer.updatedAt) }}</span>
+            </div>
+
+            <div class="user-actions">
+              <select 
+                class="form-select"
+                [value]="customer.role"
+                (change)="onRoleChange($event, customer.id)">
+                <option value="customer">👤 Mantener como Cliente</option>
+                <option value="barber">✂️ Convertir a Barbero</option>
+                <option value="admin">⚙️ Convertir a Administrador</option>
+              </select>
+
+              <button 
+                class="btn btn-outline-danger btn-sm"
+                (click)="deleteUser(customer.id)">
+                🗑️ Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BARBERS TAB -->
+    <section *ngIf="activeTab() === 'barbers'" class="tab-content users-tab">
+      <div class="tab-header">
+        <h2>✂️ Gestión de Barberos</h2>
+        <div class="header-actions">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Buscar por nombre, email o teléfono..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="searchQuery.set($event)">
+          <button 
+            class="btn btn-outline-primary btn-sm"
+            (click)="openUserFormModal('barber')">
+            ➕ Crear Barbero
+          </button>
+        </div>
+      </div>
+
+      <div class="users-list">
+        <div *ngIf="filterUsers(barbers()).length === 0" class="empty-state">
+          <p>No hay barberos registrados</p>
+        </div>
+
+        <div 
+          *ngFor="let barber of filterUsers(barbers())" 
+          class="user-card"
+          [class.selected]="selectedUser()?.id === barber.id"
+          (click)="selectUser(barber)">
+          
+          <div class="user-header">
+            <div class="user-info">
+              <h4>{{ barber.displayName }}</h4>
+              <p class="email">{{ barber.email }}</p>
+            </div>
+            <span class="role-badge barber">✂️ Barbero</span>
+          </div>
+
+          <div *ngIf="selectedUser()?.id === barber.id" class="user-details" (click)="$event.stopPropagation()">
+            <div class="detail-row">
+              <span class="label">Teléfono:</span>
+              <span class="value">{{ barber.phone || '-' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Creado:</span>
+              <span class="value">{{ formatDate(barber.createdAt) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Última actualización:</span>
+              <span class="value">{{ formatDate(barber.updatedAt) }}</span>
+            </div>
+
+            <!-- API Key Field -->
+            <div class="detail-row api-key-row">
+              <span class="label">Clave API:</span>
+              <div class="api-key-container">
+                <input 
+                  [type]="showApiKey() === barber.id ? 'text' : 'password'"
+                  [value]="barber.apiKey || 'No asignada'"
+                  readonly
+                  class="api-key-input">
+                <button 
+                  class="btn-icon"
+                  title="Ver/Ocultar clave"
+                  (click)="toggleApiKeyVisibility(barber.id)"
+                  (click.stop)="$event.stopPropagation()">
+                  {{ showApiKey() === barber.id ? '👁️' : '👁️‍🗨️' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- QR Code Section -->
+            <div class="detail-row qr-section">
+              <span class="label">Código QR:</span>
+              <div class="qr-container">
+                <div *ngIf="barberQRCodes()[barber.id || '']" class="qr-code">
+                  <img [src]="barberQRCodes()[barber.id || '']" alt="QR Code" />
+                </div>
+                <div class="qr-actions">
+                  <button 
+                    class="btn btn-outline-primary btn-sm"
+                    (click)="generateQRCode(barber)"
+                    (click.stop)="$event.stopPropagation()">
+                    📱 Generar QR
+                  </button>
+                  <button 
+                    *ngIf="barberQRCodes()[barber.id || '']"
+                    class="btn btn-outline-success btn-sm"
+                    (click)="downloadQRCode(barber)"
+                    (click.stop)="$event.stopPropagation()">
+                    ⬇️ Descargar
+                  </button>
+                  <button 
+                    class="btn btn-outline-info btn-sm"
+                    (click)="copyPublicUrl(barber)"
+                    (click.stop)="$event.stopPropagation()"
+                    title="Copiar URL pública">
+                    📋 Copiar URL
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="user-actions">
+              <select 
+                class="form-select"
+                [value]="barber.role"
+                (change)="onRoleChange($event, barber.id)"
+                (click)="$event.stopPropagation()">
+                <option value="barber">✂️ Mantener como Barbero</option>
+                <option value="customer">👤 Convertir a Cliente</option>
+                <option value="admin">⚙️ Convertir a Administrador</option>
+              </select>
+
+              <button 
+                class="btn btn-outline-danger btn-sm"
+                (click)="deleteUser(barber.id)"
+                (click.stop)="$event.stopPropagation()">
+                🗑️ Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMINS TAB -->
+    <section *ngIf="activeTab() === 'admins'" class="tab-content users-tab">
+      <div class="tab-header">
+        <h2>⚙️ Gestión de Administradores</h2>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Buscar por nombre, email o teléfono..."
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="searchQuery.set($event)">
+      </div>
+
+      <div class="users-list">
+        <div *ngIf="filterUsers(admins()).length === 0" class="empty-state">
+          <p>No hay administradores registrados</p>
+        </div>
+
+        <div 
+          *ngFor="let admin of filterUsers(admins())" 
+          class="user-card"
+          [class.selected]="selectedUser()?.id === admin.id"
+          (click)="selectUser(admin)">
+          
+          <div class="user-header">
+            <div class="user-info">
+              <h4>{{ admin.displayName }}</h4>
+              <p class="email">{{ admin.email }}</p>
+            </div>
+            <span class="role-badge admin">⚙️ Administrador</span>
+          </div>
+
+          <div *ngIf="selectedUser()?.id === admin.id" class="user-details">
+            <div class="detail-row">
+              <span class="label">Teléfono:</span>
+              <span class="value">{{ admin.phone || '-' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Creado:</span>
+              <span class="value">{{ formatDate(admin.createdAt) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Última actualización:</span>
+              <span class="value">{{ formatDate(admin.updatedAt) }}</span>
+            </div>
+
+            <div class="user-actions">
+              <select 
+                class="form-select"
+                [value]="admin.role"
+                (change)="onRoleChange($event, admin.id)">
+                <option value="admin">⚙️ Mantener como Administrador</option>
+                <option value="customer">👤 Convertir a Cliente</option>
+                <option value="barber">✂️ Convertir a Barbero</option>
+              </select>
+
+              <button 
+                class="btn btn-outline-danger btn-sm"
+                [disabled]="admin.id === currentUser?.id"
+                (click)="deleteUser(admin.id)"
+                [title]="admin.id === currentUser?.id ? 'No puedes eliminarte a ti mismo' : ''">
+                🗑️ Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCTS TAB -->
+    <section *ngIf="activeTab() === 'products'" class="tab-content">
+      <app-product-list></app-product-list>
+    </section>
+
+    <!-- VISITS TAB -->
+    <section *ngIf="activeTab() === 'visits'" class="tab-content">
+      <app-visit-list></app-visit-list>
+    </section>
+
+    <!-- FIDELIZATION REPORT TAB -->
+    <section *ngIf="activeTab() === 'fidelization-report'" class="tab-content">
+      <app-fidelization-report></app-fidelization-report>
+    </section>
+
+    <!-- APPOINTMENTS TAB -->
+    <section *ngIf="activeTab() === 'appointments'" class="tab-content">
+      <app-appointment-list></app-appointment-list>
+    </section>
+  </main>
+
+  <!-- User Form Modal -->
+  <app-user-form-modal 
+    *ngIf="showUserFormModal()"
+    [initialRole]="userFormType()"
+    (userCreated)="onUserCreated()"
+    (modalClosed)="closeUserFormModal()">
+  </app-user-form-modal>
+</div>

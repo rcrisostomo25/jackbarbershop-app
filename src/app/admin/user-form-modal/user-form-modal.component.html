@@ -1,0 +1,208 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Crear {{ userRole() === 'barber' ? '✂️ Barbero' : '👤 Cliente' }}</h2>
+      <button class="btn-close" (click)="closeModal()"></button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Error Message -->
+      <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <small>{{ errorMessage() }}</small>
+        <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+      </div>
+
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Role Selection -->
+        <div class="mb-4">
+          <label class="form-label d-block">Tipo de usuario:</label>
+          <div class="btn-group w-100" role="group">
+            <input
+              type="radio"
+              class="btn-check"
+              name="role"
+              id="modal-role-customer"
+              (change)="setRole('customer')"
+              [checked]="userRole() === 'customer'"
+            />
+            <label class="btn btn-outline-primary" for="modal-role-customer">
+              👤 Cliente
+            </label>
+
+            <input
+              type="radio"
+              class="btn-check"
+              name="role"
+              id="modal-role-barber"
+              (change)="setRole('barber')"
+              [checked]="userRole() === 'barber'"
+            />
+            <label class="btn btn-outline-primary" for="modal-role-barber">
+              ✂️ Barbero
+            </label>
+          </div>
+        </div>
+
+        <!-- Full Name -->
+        <div class="mb-3">
+          <label for="displayName" class="form-label">Nombre Completo</label>
+          <input
+            type="text"
+            class="form-control"
+            id="displayName"
+            placeholder="Nombre del usuario"
+            formControlName="displayName"
+            [class.is-invalid]="submitted() && displayName?.invalid"
+            [disabled]="isLoading()"
+          />
+          <div class="invalid-feedback d-block" *ngIf="submitted() && displayName?.invalid">
+            <small *ngIf="displayName!.errors?.['required']">El nombre es requerido</small>
+            <small *ngIf="displayName!.errors?.['minlength']">Mínimo 3 caracteres</small>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label for="email" class="form-label">Correo Electrónico</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            placeholder="email@ejemplo.com"
+            formControlName="email"
+            [class.is-invalid]="submitted() && email?.invalid"
+            [disabled]="isLoading()"
+          />
+          <div class="invalid-feedback d-block" *ngIf="submitted() && email?.invalid">
+            <small *ngIf="email!.errors?.['required']">El email es requerido</small>
+            <small *ngIf="email!.errors?.['email']">Email inválido</small>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="mb-3">
+          <label for="phone" class="form-label">Teléfono</label>
+          <input
+            type="tel"
+            class="form-control"
+            id="phone"
+            placeholder="1234567890"
+            formControlName="phone"
+            [class.is-invalid]="submitted() && phone?.invalid"
+            [disabled]="isLoading()"
+          />
+          <div class="invalid-feedback d-block" *ngIf="submitted() && phone?.invalid">
+            <small *ngIf="phone!.errors?.['required']">El teléfono es requerido</small>
+            <small *ngIf="phone!.errors?.['pattern']">Mínimo 10 dígitos</small>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+          <label for="password" class="form-label">Contraseña</label>
+          <div class="input-group">
+            <input
+              [type]="hidePassword() ? 'password' : 'text'"
+              class="form-control"
+              id="password"
+              placeholder="••••••"
+              formControlName="password"
+              [class.is-invalid]="submitted() && password?.invalid"
+              [disabled]="isLoading()"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="togglePasswordVisibility()"
+              [disabled]="isLoading()"
+            >
+              {{ hidePassword() ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="submitted() && password?.invalid">
+            <small *ngIf="password!.errors?.['required']">La contraseña es requerida</small>
+            <small *ngIf="password!.errors?.['minlength']">Mínimo 6 caracteres</small>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-4">
+          <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+          <div class="input-group">
+            <input
+              [type]="hideConfirmPassword() ? 'password' : 'text'"
+              class="form-control"
+              id="confirmPassword"
+              placeholder="••••••"
+              formControlName="confirmPassword"
+              [class.is-invalid]="submitted() && confirmPassword?.invalid"
+              [disabled]="isLoading()"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="toggleConfirmPasswordVisibility()"
+              [disabled]="isLoading()"
+            >
+              {{ hideConfirmPassword() ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="submitted() && confirmPassword?.invalid">
+            <small *ngIf="confirmPassword!.errors?.['required']">Confirmar contraseña es requerido</small>
+            <small *ngIf="confirmPassword!.errors?.['passwordMismatch']">Las contraseñas no coinciden</small>
+          </div>
+        </div>
+
+        <!-- API Key (only for barbers) -->
+        <div class="mb-4" *ngIf="userRole() === 'barber'">
+          <label for="apiKey" class="form-label">🔐 Clave API (editable)</label>
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              id="apiKey"
+              placeholder="Ej: 1234"
+              formControlName="apiKey"
+              maxlength="10"
+              [class.is-invalid]="submitted() && apiKey?.invalid"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              (click)="regenerateApiKey()"
+              [disabled]="isLoading()"
+              title="Sugerir una nueva clave aleatoria de 4 dígitos"
+            >
+              🔄 Sugerir
+            </button>
+          </div>
+          <small class="form-text text-muted d-block mt-2">
+            Propuesta automática de 4 dígitos. Puedes editarla manualmente si lo prefieres.
+          </small>
+          <div class="invalid-feedback d-block" *ngIf="submitted() && apiKey?.invalid">
+            <small *ngIf="apiKey!.errors?.['required']">La clave API es requerida</small>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="closeModal()"
+            [disabled]="isLoading()"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="isLoading()"
+          >
+            {{ isLoading() ? 'Creando...' : 'Crear Usuario' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

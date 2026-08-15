@@ -1,0 +1,159 @@
+<div class="public-form-wrapper">
+  <!-- Header -->
+  <div class="public-header">
+    <div class="header-content">
+      <h1 class="header-title">📊 Registro de Servicio</h1>
+      <p class="header-subtitle">Barbero: <strong>{{ barberName() }}</strong></p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="form-container">
+    <!-- Error Message -->
+    <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong>⚠️ Error:</strong> {{ errorMessage() }}
+    </div>
+
+    <!-- Success State -->
+    <div *ngIf="submitSuccess()" class="success-state">
+      <div class="success-card">
+        <div class="success-icon">✓</div>
+        <h2 class="success-title">¡Servicio Registrado Correctamente!</h2>
+
+        <div class="service-summary">
+          <p>El servicio ha sido guardado exitosamente en el sistema.</p>
+          <p class="service-id">ID del Servicio: <code>{{ savedServiceId() }}</code></p>
+        </div>
+
+        <div class="success-actions">
+          <button class="btn btn-primary" (click)="goToLogin()">
+            🔐 Ir a Mi Sesión
+          </button>
+          <button class="btn btn-secondary" (click)="reloadForm()">
+            ➕ Registrar Otro Servicio
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form State -->
+    <div *ngIf="!submitSuccess()" class="form-section">
+      <!-- Service Form Section -->
+      <div class="service-form-section">
+        <div class="section-header">
+          <h3>📝 Detalles del Servicio</h3>
+          <p>Completa la información del servicio</p>
+        </div>
+
+        <!-- Service Name -->
+        <div class="form-group">
+          <label for="serviceName" class="form-label">Nombre del Servicio *</label>
+          <input
+            type="text"
+            id="serviceName"
+            class="form-control"
+            [class.is-invalid]="formErrors()['serviceName']"
+            [value]="formData().serviceName"
+            (input)="onInputChange($event, 'serviceName')"
+            placeholder="Ej: Corte Clásico, Barba, etc."
+            [disabled]="isSubmitting()"
+          />
+          <small class="error-text" *ngIf="formErrors()['serviceName']">
+            {{ formErrors()['serviceName'] }}
+          </small>
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+          <label for="price" class="form-label">Precio (S/.) *</label>
+          <input
+            type="number"
+            id="price"
+            class="form-control"
+            [class.is-invalid]="formErrors()['price']"
+            [value]="formData().price"
+            (input)="onInputChange($event, 'price')"
+            placeholder="0.00"
+            step="0.01"
+            min="0"
+            [disabled]="isSubmitting()"
+          />
+          <small class="error-text" *ngIf="formErrors()['price']">
+            {{ formErrors()['price'] }}
+          </small>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="form-group">
+          <label for="paymentMethod" class="form-label">Método de Pago *</label>
+          <select
+            id="paymentMethod"
+            class="form-control"
+            [class.is-invalid]="formErrors()['paymentMethod']"
+            [value]="formData().paymentMethod"
+            (change)="onSelectChange($event, 'paymentMethod')"
+            [disabled]="isSubmitting()"
+          >
+            <option value="efectivo">💵 Efectivo</option>
+            <option value="tarjeta">💳 Tarjeta</option>
+            <option value="yape">📱 Yape</option>
+            <option value="plin">📱 Plin</option>
+            <option value="otro">📝 Otro</option>
+          </select>
+          <small class="error-text" *ngIf="formErrors()['paymentMethod']">
+            {{ formErrors()['paymentMethod'] }}
+          </small>
+        </div>
+
+        <!-- Comments -->
+        <div class="form-group">
+          <label for="comments" class="form-label">Comentarios</label>
+          <textarea
+            id="comments"
+            class="form-control"
+            [value]="formData().comments"
+            (input)="onInputChange($event, 'comments')"
+            placeholder="Notas adicionales sobre el servicio..."
+            rows="3"
+            [disabled]="isSubmitting()"
+          ></textarea>
+        </div>
+
+        <!-- API Key (Security) -->
+        <div class="form-group">
+          <label for="apiKey" class="form-label">🔐 Clave *</label>
+          <input
+            type="password"
+            id="apiKey"
+            class="form-control"
+            [class.is-invalid]="formErrors()['apiKey']"
+            [value]="formData().apiKey"
+            (input)="onInputChange($event, 'apiKey')"
+            placeholder="Ingresa tu clave"
+            [disabled]="isSubmitting()"
+          />
+          <small class="error-text" *ngIf="formErrors()['apiKey']">
+            {{ formErrors()['apiKey'] }}
+          </small>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            class="btn btn-success btn-lg"
+            (click)="submitForm()"
+            [disabled]="isSubmitting()"
+          >
+            <span *ngIf="!isSubmitting()">💾 Guardar Servicio</span>
+            <span *ngIf="isSubmitting()">Guardando...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="public-footer">
+    <p>© 2024 Jack BarberShop - Registro Público de Servicios</p>
+  </div>
+</div>

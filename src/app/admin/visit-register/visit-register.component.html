@@ -1,0 +1,119 @@
+<div class="modal-overlay" *ngIf="true">
+  <div class="modal-content">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>📝 Registrar Nueva Visita</h2>
+      <button type="button" class="btn-close" (click)="closeModal()" [disabled]="isLoading()"></button>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ errorMessage() }}
+      <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage()" class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ successMessage() }}
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="formData()!" (ngSubmit)="onSubmit()" class="modal-body">
+      <!-- Número de Celular -->
+      <div class="mb-3">
+        <label for="clientPhone" class="form-label">📱 Número de Celular</label>
+        <input
+          type="tel"
+          class="form-control"
+          id="clientPhone"
+          placeholder="Ej: 912345678"
+          formControlName="clientPhone"
+          [class.is-invalid]="submitted() && clientPhone?.invalid"
+          [disabled]="isLoading()"
+          maxlength="15"
+        />
+        <small class="form-text text-muted">Mínimo 7 dígitos</small>
+        <div class="invalid-feedback d-block" *ngIf="submitted() && clientPhone?.invalid">
+          <small *ngIf="clientPhone!.errors?.['required']">El celular es requerido</small>
+          <small *ngIf="clientPhone!.errors?.['pattern']">Ingresa un número válido (mínimo 7 dígitos)</small>
+        </div>
+      </div>
+
+      <!-- Nombre del Cliente -->
+      <div class="mb-3">
+        <label for="clientName" class="form-label">👤 Nombre del Cliente</label>
+        <input
+          type="text"
+          class="form-control"
+          id="clientName"
+          placeholder="Ej: Juan Pérez"
+          formControlName="clientName"
+          [class.is-invalid]="submitted() && clientName?.invalid"
+          [disabled]="isLoading()"
+        />
+        <div class="invalid-feedback d-block" *ngIf="submitted() && clientName?.invalid">
+          <small *ngIf="clientName!.errors?.['required']">El nombre es requerido</small>
+          <small *ngIf="clientName!.errors?.['minlength']">Mínimo 3 caracteres</small>
+        </div>
+      </div>
+
+      <!-- Corte Realizado -->
+      <div class="mb-3">
+        <label for="servicePerformed" class="form-label">✂️ Corte Realizado</label>
+        <input
+          type="text"
+          class="form-control"
+          id="servicePerformed"
+          placeholder="Ej: Corte Regular, Corte con Barba"
+          formControlName="servicePerformed"
+          [class.is-invalid]="submitted() && servicePerformed?.invalid"
+          [disabled]="isLoading()"
+        />
+        <div class="invalid-feedback d-block" *ngIf="submitted() && servicePerformed?.invalid">
+          <small *ngIf="servicePerformed!.errors?.['required']">El corte es requerido</small>
+          <small *ngIf="servicePerformed!.errors?.['minlength']">Mínimo 3 caracteres</small>
+        </div>
+      </div>
+
+      <!-- Recomendaciones (Opcional) -->
+      <div class="mb-4">
+        <label for="recommendations" class="form-label">💡 Recomendaciones (Opcional)</label>
+        <textarea
+          class="form-control"
+          id="recommendations"
+          placeholder="Ej: Próximo corte en 2 semanas, probar nuevo producto..."
+          formControlName="recommendations"
+          [disabled]="isLoading()"
+          rows="3"
+          maxlength="500"
+        ></textarea>
+        <small class="form-text text-muted">{{ recommendations?.value?.length || 0 }}/500 caracteres</small>
+      </div>
+
+      <!-- Buttons -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeModal()"
+          [disabled]="isLoading()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isLoading()"
+        >
+          <span *ngIf="!isLoading()">
+            <span>✓ Registrar Visita</span>
+          </span>
+          <span *ngIf="isLoading()">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Procesando...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

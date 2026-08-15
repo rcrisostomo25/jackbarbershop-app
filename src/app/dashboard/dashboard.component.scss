@@ -1,0 +1,134 @@
+.dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.navbar {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .brand-text {
+    color: #c08e32;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .navbar-text small {
+    font-size: 0.875rem;
+  }
+
+  .badge {
+    background-color: #c08e32 !important;
+    color: white;
+  }
+
+  .nav-link {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #c08e32 !important;
+    }
+
+    &.active {
+      color: #c08e32 !important;
+      border-bottom: 2px solid #c08e32;
+    }
+  }
+}
+
+.dashboard-content {
+  flex: 1;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8e8e8 100%);
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #000;
+  }
+
+  .text-muted {
+    color: #666 !important;
+  }
+}
+
+.action-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+    color: #c08e32;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(192, 142, 50, 0.1);
+    border-radius: 0.5rem;
+  }
+
+  .card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-text {
+    font-size: 0.875rem;
+    margin-bottom: 0;
+  }
+
+  .card-footer {
+    padding: 1rem 1.5rem;
+    background-color: transparent;
+  }
+
+  .btn-primary {
+    background-color: #000;
+    border-color: #000;
+
+    &:hover {
+      background-color: #1a1a1a;
+      border-color: #1a1a1a;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: 1.5rem 1rem !important;
+
+    h2 {
+      font-size: 1.5rem;
+    }
+  }
+
+  .action-card {
+    .card-body {
+      padding: 1rem;
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+}
+

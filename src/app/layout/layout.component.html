@@ -1,0 +1,126 @@
+<div class="layout-wrapper">
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark bg-dark sticky-top">
+    <div class="container-fluid navbar-content">
+      <!-- Logo -->
+      <div class="navbar-brand-wrapper">
+        <img src="assets/white.png" alt="Jack BarberShop" class="navbar-logo" />
+        <span class="brand-text">Jack's Barber Shop</span>
+      </div>
+
+      <!-- User Info & Menu Center -->
+      <div class="navbar-center">
+        <div class="user-info d-none d-lg-flex">
+          <span class="user-role">{{ getRoleLabel(currentUser()?.role || '') }}</span>
+        </div>
+      </div>
+
+      <!-- Menu Dropdown Button -->
+      <div class="navbar-menu-wrapper">
+        <button 
+          class="btn-menu-toggle" 
+          (click)="toggleMenu()"
+          [class.active]="showMenu()"
+          title="Menú de navegación"
+        >
+          <span class="menu-icon">☰</span>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div class="dropdown-menu" [class.show]="showMenu()">
+          <!-- Menu Header -->
+          <div class="dropdown-header">
+            <h5 class="mb-0">Navegación</h5>
+            <button class="btn-close" (click)="closeMenu()" title="Cerrar menú">✕</button>
+          </div>
+
+          <!-- Menu Items -->
+          <div class="dropdown-items">
+            <!-- Dashboard -->
+            <a 
+              class="dropdown-item" 
+              routerLink="/dashboard" 
+              routerLinkActive="active"
+              (click)="closeMenu()"
+            >
+              <span class="item-icon">🏠</span>
+              <span class="item-text">Dashboard</span>
+            </a>
+
+            <!-- Mi Perfil -->
+            <a 
+              class="dropdown-item" 
+              routerLink="/profile" 
+              routerLinkActive="active"
+              (click)="closeMenu()"
+            >
+              <span class="item-icon">👤</span>
+              <span class="item-text">Mi Perfil</span>
+            </a>
+
+            <!-- Mis Citas (no admin) -->
+            <a 
+              *ngIf="currentUser()?.role !== 'admin'"
+              class="dropdown-item" 
+              routerLink="/appointments" 
+              routerLinkActive="active"
+              (click)="closeMenu()"
+            >
+              <span class="item-icon">📅</span>
+              <span class="item-text">Mis Citas</span>
+            </a>
+
+            <!-- Administración (admin/barber) -->
+            <a 
+              *ngIf="currentUser()?.role === 'admin' || currentUser()?.role === 'barber'"
+              class="dropdown-item" 
+              routerLink="/admin" 
+              routerLinkActive="active"
+              (click)="closeMenu()"
+            >
+              <span class="item-icon">⚙️</span>
+              <span class="item-text">Administración</span>
+            </a>
+
+            <!-- Servicios (admin/barber) -->
+            <a 
+              *ngIf="currentUser()?.role === 'admin' || currentUser()?.role === 'barber'"
+              class="dropdown-item" 
+              routerLink="/services" 
+              routerLinkActive="active"
+              (click)="closeMenu()"
+            >
+              <span class="item-icon">📊</span>
+              <span class="item-text">Servicios</span>
+            </a>
+
+            <!-- Divider -->
+            <div class="dropdown-divider"></div>
+
+            <!-- Logout Button -->
+            <button 
+              class="dropdown-item btn-logout"
+              (click)="logout()"
+            >
+              <span class="item-icon">🚪</span>
+              <span class="item-text">Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile User Info (only on mobile) -->
+    <div class="mobile-user-info d-lg-none">
+      <small class="text-muted">
+        {{ currentUser()?.displayName }} • {{ getRoleLabel(currentUser()?.role || '') }}
+      </small>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="layout-content">
+    <router-outlet />
+  </main>
+</div>
+

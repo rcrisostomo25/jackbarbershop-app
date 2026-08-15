@@ -1,0 +1,185 @@
+<div class="modal">
+  <div class="modal-content">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>{{ isEditMode() ? '✏️ Editar Cita' : '➕ Nueva Cita' }}</h2>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+
+    <!-- Error Message -->
+    <div class="alert alert-danger" *ngIf="errorMessage()">
+      {{ errorMessage() }}
+    </div>
+
+    <!-- Success Message -->
+    <div class="alert alert-success" *ngIf="successMessage()">
+      {{ successMessage() }}
+    </div>
+
+    <!-- Form -->
+    <form *ngIf="formData()" [formGroup]="formData()" (ngSubmit)="onSubmit()" class="appointment-form">
+      <div class="form-grid">
+        <!-- Barber Selection -->
+        <div class="form-group">
+          <label for="barberId">
+            ✂️ Barbero <span class="required">*</span>
+          </label>
+          <select
+            id="barberId"
+            formControlName="barberId"
+            class="form-control"
+            [class.is-invalid]="barberId!.invalid && (barberId!.dirty || submitted())"
+            (change)="onBarberChange()"
+          >
+            <option value="">Selecciona un barbero</option>
+            <option *ngFor="let barber of barbers()" [value]="barber.id">
+              {{ barber.displayName }}
+            </option>
+          </select>
+          <div class="invalid-feedback" *ngIf="barberId!.invalid && (barberId!.dirty || submitted())">
+            El barbero es requerido
+          </div>
+        </div>
+
+        <!-- Client Name -->
+        <div class="form-group">
+          <label for="clientName">
+            👤 Nombre del Cliente <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="clientName"
+            formControlName="clientName"
+            class="form-control"
+            [class.is-invalid]="clientName!.invalid && (clientName!.dirty || submitted())"
+            placeholder="Nombre completo"
+          />
+          <div class="invalid-feedback" *ngIf="clientName!.invalid && (clientName!.dirty || submitted())">
+            <span *ngIf="clientName!.errors?.['required']">El nombre es requerido</span>
+            <span *ngIf="clientName!.errors?.['minlength']">Mínimo 3 caracteres</span>
+          </div>
+        </div>
+
+        <!-- Client Phone -->
+        <div class="form-group">
+          <label for="clientPhone">
+            📱 Teléfono del Cliente <span class="required">*</span>
+          </label>
+          <input
+            type="tel"
+            id="clientPhone"
+            formControlName="clientPhone"
+            class="form-control"
+            [class.is-invalid]="clientPhone!.invalid && (clientPhone!.dirty || submitted())"
+            placeholder="7 dígitos mínimo"
+          />
+          <div class="invalid-feedback" *ngIf="clientPhone!.invalid && (clientPhone!.dirty || submitted())">
+            <span *ngIf="clientPhone!.errors?.['required']">El teléfono es requerido</span>
+            <span *ngIf="clientPhone!.errors?.['pattern']">Mínimo 7 dígitos</span>
+          </div>
+        </div>
+
+        <!-- Appointment Date -->
+        <div class="form-group">
+          <label for="appointmentDate">
+            📅 Fecha de la Cita <span class="required">*</span>
+          </label>
+          <input
+            type="date"
+            id="appointmentDate"
+            formControlName="appointmentDate"
+            class="form-control"
+            [class.is-invalid]="appointmentDate!.invalid && (appointmentDate!.dirty || submitted())"
+          />
+          <div class="invalid-feedback" *ngIf="appointmentDate!.invalid && (appointmentDate!.dirty || submitted())">
+            La fecha es requerida
+          </div>
+        </div>
+
+        <!-- Appointment Time -->
+        <div class="form-group">
+          <label for="appointmentTime">
+            🕐 Hora de la Cita <span class="required">*</span>
+          </label>
+          <input
+            type="time"
+            id="appointmentTime"
+            formControlName="appointmentTime"
+            class="form-control"
+            [class.is-invalid]="appointmentTime!.invalid && (appointmentTime!.dirty || submitted())"
+          />
+          <div class="invalid-feedback" *ngIf="appointmentTime!.invalid && (appointmentTime!.dirty || submitted())">
+            La hora es requerida
+          </div>
+        </div>
+
+        <!-- Cut Type -->
+        <div class="form-group">
+          <label for="cutType">
+            ✂️ Tipo de Corte (Opcional)
+          </label>
+          <input
+            type="text"
+            id="cutType"
+            formControlName="cutType"
+            class="form-control"
+            placeholder="Ej: Corte Clásico, Fade, etc."
+          />
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+          <label for="status">
+            📊 Estado <span class="required">*</span>
+          </label>
+          <select
+            id="status"
+            formControlName="status"
+            class="form-control"
+            [class.is-invalid]="status!.invalid && (status!.dirty || submitted())"
+          >
+            <option value="scheduled">Programada</option>
+            <option value="completed">Completada</option>
+            <option value="cancelled">Cancelada</option>
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group full-width">
+          <label for="notes">
+            📝 Notas (Opcional)
+          </label>
+          <textarea
+            id="notes"
+            formControlName="notes"
+            class="form-control"
+            placeholder="Notas adicionales sobre la cita"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeModal()"
+          [disabled]="isLoading()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isLoading()"
+        >
+          <span *ngIf="!isLoading()">
+            {{ isEditMode() ? '💾 Guardar Cambios' : '➕ Crear Cita' }}
+          </span>
+          <span *ngIf="isLoading()">Procesando...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

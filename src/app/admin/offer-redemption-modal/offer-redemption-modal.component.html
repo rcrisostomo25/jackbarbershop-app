@@ -1,0 +1,92 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h3>🎁 Canjear Ofertas de Fidelización</h3>
+      <button class="btn-close" (click)="closeModal()" title="Cerrar">✕</button>
+    </div>
+
+    <!-- Client Info -->
+    <div class="client-info-section" *ngIf="clientStats">
+      <div class="info-row">
+        <span class="info-label">👤 Cliente:</span>
+        <span class="info-value">{{ clientStats.name }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">📱 Teléfono:</span>
+        <span class="info-value">{{ clientStats.phone }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">📊 Visitas:</span>
+        <span class="info-value">{{ clientStats.totalVisits }}</span>
+      </div>
+    </div>
+
+    <!-- Alert Messages -->
+    <div *ngIf="successMessage()" class="alert alert-success">
+      ✓ {{ successMessage() }}
+    </div>
+    <div *ngIf="errorMessage()" class="alert alert-danger">
+      ✕ {{ errorMessage() }}
+    </div>
+
+    <!-- Available Offers -->
+    <div class="offers-section">
+      <h4>Ofertas Disponibles</h4>
+      
+      <div *ngIf="availableOffers().length === 0" class="no-offers">
+        <p>No hay ofertas disponibles para este cliente.</p>
+      </div>
+
+      <div class="offers-list">
+        <div *ngFor="let offer of availableOffers()" class="offer-card">
+          <div class="offer-header">
+            <span class="offer-emoji">{{ getOfferEmoji(offer.offerType) }}</span>
+            <div class="offer-title-info">
+              <h5>{{ getOfferDescription(offer.offerType) }}</h5>
+              <small class="offer-requirement">Requeridas {{ offer.visitCount }} visitas</small>
+            </div>
+          </div>
+
+          <div class="offer-body">
+            <div *ngIf="isOfferRedeemed(offer.offerType)" class="offer-redeemed">
+              <span class="redeemed-badge">✓ Canjeado</span>
+            </div>
+            <button 
+              *ngIf="!isOfferRedeemed(offer.offerType)"
+              class="btn btn-redeem" 
+              (click)="redeemOffer(offer.offerType)"
+              [disabled]="isLoading()">
+              {{ isLoading() ? 'Procesando...' : 'Canjear Ahora' }}
+            </button>
+          </div>
+
+          <div class="offer-expiry">
+            <small>Vence: {{ offer.expiresAt | date:'short' }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Redeemed History -->
+    <div class="redeemed-section" *ngIf="redeemedOffers().length > 0">
+      <h4>Ofertas Canjeadas Recientemente</h4>
+      <div class="redeemed-list">
+        <div *ngFor="let offer of redeemedOffers()" class="redeemed-item">
+          <div class="redeemed-check">✓</div>
+          <div class="redeemed-info">
+            <span class="redeemed-name">{{ getOfferEmoji(offer.offerType) }} {{ getOfferDescription(offer.offerType) }}</span>
+            <small class="redeemed-date">{{ offer.redeemedAt | date:'short' }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeModal()" [disabled]="isLoading()">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>

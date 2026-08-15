@@ -1,1 +1,516 @@
-/* You can add global styles to this file, and also import other style files */
+// ==========================================
+// Bootstrap 5 Import - Compiled CSS
+// ==========================================
+
+@import 'bootstrap/dist/css/bootstrap.css';
+
+// ==========================================
+// Custom Global Styles & Color Overrides
+// ==========================================
+
+:root {
+  --bs-primary: #000000;      // Black
+  --bs-secondary: #c08e32;    // Gold/Barbershop accent
+  --bs-body-bg: #fafafa;      // Light background
+  --bs-body-color: #333333;   // Dark text
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: #fafafa;
+  color: #333333;
+  line-height: 1.6;
+}
+
+// ==========================================
+// Login Page Styles
+// ==========================================
+
+.login-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8e8e8 100%);
+}
+
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  padding: 2.5rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.login-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.login-subtitle {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.form-control:focus {
+  border-color: #c08e32;
+  box-shadow: 0 0 0 0.2rem rgba(192, 142, 50, 0.25);
+}
+
+.form-control.is-invalid:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.btn-primary {
+  background-color: #000000;
+  border-color: #000000;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+.btn-primary:active {
+  background-color: #000000;
+  border-color: #000000;
+}
+
+.input-group .btn-outline-secondary:hover {
+  color: #c08e32;
+  border-color: #c08e32;
+}
+
+.login-footer {
+  margin-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+}
+
+.text-accent {
+  color: #c08e32;
+}
+
+.text-accent:hover {
+  color: #a67229;
+}
+
+@media (max-width: 576px) {
+  .login-card {
+    padding: 1.5rem;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
+}
+
+// ==========================================
+// Register Page Styles
+// ==========================================
+
+.register-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8e8e8 100%);
+}
+
+.register-card {
+  max-width: 450px;
+  width: 100%;
+  padding: 2.5rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.register-header {
+  margin-bottom: 2rem;
+}
+
+.register-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.register-subtitle {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.register-footer {
+  margin-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+}
+
+.btn-outline-primary {
+  color: #000000;
+  border-color: #000000;
+}
+
+.btn-outline-primary:hover {
+  background-color: #000000;
+  border-color: #000000;
+  color: #ffffff;
+}
+
+@media (max-width: 576px) {
+  .register-card {
+    padding: 1.5rem;
+  }
+
+  .register-title {
+    font-size: 1.5rem;
+  }
+}
+
+// ==========================================
+// Dashboard Styles
+// ==========================================
+
+.navbar {
+  background-color: #000000;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #c08e32 !important;
+}
+
+.nav-link {
+  color: #ffffff !important;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #c08e32 !important;
+}
+
+.nav-link.active {
+  color: #c08e32 !important;
+  border-bottom: 2px solid #c08e32;
+}
+
+.dashboard-content {
+  background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+  padding: 3rem 2rem;
+  min-height: calc(100vh - 56px);
+}
+
+.action-card {
+  background-color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.action-card:hover {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.action-card-icon {
+  font-size: 2.5rem;
+  color: #c08e32;
+  margin-bottom: 1rem;
+}
+
+.action-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 0.5rem;
+}
+
+.action-card-text {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .action-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .action-card-icon {
+    font-size: 2rem;
+  }
+
+  .action-card-title {
+    font-size: 1rem;
+  }
+}
+
+// ==========================================
+// Forgot Password Page Styles
+// ==========================================
+
+.forgot-password-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e8e8e8 100%);
+}
+
+.forgot-password-card {
+  max-width: 400px;
+  width: 100%;
+  padding: 2.5rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.forgot-password-header {
+  margin-bottom: 2rem;
+}
+
+.forgot-password-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.forgot-password-subtitle {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.forgot-password-footer {
+  margin-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+}
+
+@media (max-width: 576px) {
+  .forgot-password-card {
+    padding: 1.5rem;
+  }
+
+  .forgot-password-title {
+    font-size: 1.5rem;
+  }
+}
+
+// ==========================================
+// Custom Global Styles
+// ==========================================
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: #fafafa;
+  color: #333333;
+  line-height: 1.6;
+}
+
+// Minimalista approach - Clean and simple
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+// Utility Classes
+.text-accent {
+  color: #c08e32;
+}
+
+.bg-accent {
+  background-color: #c08e32;
+}
+
+.border-accent {
+  border-color: #c08e32 !important;
+}
+
+.min-vh-100 {
+  min-height: 100vh;
+}
+
+// Links styling
+a {
+  color: #c08e32;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: darken(#c08e32, 10%);
+  }
+}
+
+// Button enhancements
+.btn {
+  border-radius: 0.375rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+
+  &.btn-primary {
+    background-color: #000000;
+    border-color: #000000;
+
+    &:hover {
+      background-color: lighten(#000000, 15%);
+      border-color: lighten(#000000, 15%);
+    }
+  }
+
+  &.btn-secondary {
+    background-color: #c08e32;
+    border-color: #c08e32;
+
+    &:hover {
+      background-color: darken(#c08e32, 10%);
+      border-color: darken(#c08e32, 10%);
+    }
+  }
+}
+
+// Form enhancements
+.form-control,
+.form-select {
+  border-color: #e0e0e0;
+  border-radius: 0.375rem;
+
+  &:focus {
+    border-color: #c08e32;
+    box-shadow: 0 0 0 0.2rem rgba(192, 142, 50, 0.25);
+  }
+}
+
+// Card enhancements
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  }
+}
+
+// Badge customization
+.badge {
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+}
+
+// Alert customization
+.alert {
+  border-radius: 0.375rem;
+  border: none;
+
+  &.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  &.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  &.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+
+  &.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+  }
+}
+
+// Responsive utilities
+@media (max-width: 576px) {
+  body {
+    font-size: 0.95rem;
+  }
+}
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #fafafa;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+
+  &:hover {
+    background: #555;
+  }
+}
+
+/* Utility Classes */
+.w-100 {
+  width: 100%;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mt-30 {
+  margin-top: 30px;
+}
+
+.mb-30 {
+  margin-bottom: 30px;
+}
+
+.text-center {
+  text-align: center;
+}
+

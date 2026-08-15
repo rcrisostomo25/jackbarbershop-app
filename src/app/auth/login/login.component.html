@@ -1,0 +1,95 @@
+<div class="login-wrapper">
+  <div class="container-fluid d-flex align-items-center justify-content-center min-vh-100">
+    <div class="login-card">
+      <!-- Header -->
+      <div class="login-header text-center mb-4">
+        <h1 class="login-title mb-2">Jack's Barber Shop</h1>
+        <p class="login-subtitle">Reserva tu corte</p>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <small>{{ errorMessage() }}</small>
+        <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Email -->
+        <div class="mb-3">
+          <label for="email" class="form-label">Correo Electrónico</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            placeholder="tu@email.com"
+            formControlName="email"
+            [class.is-invalid]="submitted() && email?.invalid"
+            [disabled]="isLoading()"
+          />
+          <div class="invalid-feedback d-block" *ngIf="submitted() && email?.invalid">
+            <small *ngIf="email!.errors?.['required']">El email es requerido</small>
+            <small *ngIf="email!.errors?.['email']">Email inválido</small>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+          <label for="password" class="form-label">Contraseña</label>
+          <div class="input-group">
+            <input
+              [type]="hidePassword() ? 'password' : 'text'"
+              class="form-control"
+              id="password"
+              placeholder="••••••"
+              formControlName="password"
+              [class.is-invalid]="submitted() && password?.invalid"
+              [disabled]="isLoading()"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="togglePasswordVisibility()"
+              [disabled]="isLoading()"
+            >
+              <i [class]="hidePassword() ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+            </button>
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="submitted() && password?.invalid">
+            <small *ngIf="password!.errors?.['required']">La contraseña es requerida</small>
+            <small *ngIf="password!.errors?.['minlength']">Mínimo 6 caracteres</small>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="btn btn-primary w-100 mb-3"
+          [disabled]="isLoading()"
+        >
+          <span *ngIf="!isLoading()">Iniciar Sesión</span>
+          <span *ngIf="isLoading()">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Cargando...
+          </span>
+        </button>
+      </form>
+
+      <!-- Footer Links -->
+      <div class="login-footer">
+        <p class="text-center text-muted mb-2">
+          <a routerLink="/forgot-password" class="text-decoration-none text-accent">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </p>
+        <p class="text-center text-muted">
+          ¿No tienes cuenta?
+          <a routerLink="/register" class="text-decoration-none text-accent fw-bold">
+            Registrarse
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,153 @@
+<div class="products-container">
+  <!-- Header Section -->
+  <div class="products-header">
+    <h2>📦 Gestión de Productos</h2>
+    <button class="btn btn-primary" (click)="openProductFormModal()" [disabled]="isLoading()">
+      ➕ Nuevo Producto
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <div class="search-wrapper">
+      <input
+        #searchInput
+        type="text"
+        class="form-control search-input"
+        placeholder="🔍 Buscar producto por nombre..."
+        [(ngModel)]="searchQuery"
+        (input)="searchProducts()"
+        [disabled]="isLoading()"
+      />
+      <button 
+        *ngIf="searchQuery()" 
+        class="btn-clear-search" 
+        (click)="clearSearch()"
+        title="Limpiar búsqueda"
+      >
+        ✕
+      </button>
+    </div>
+    <small class="text-muted">{{ filteredProducts().length }} producto(s) encontrado(s)</small>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-spinner">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p>Cargando productos...</p>
+  </div>
+
+  <!-- Products Grid -->
+  <div *ngIf="!isLoading()" class="products-grid">
+    <!-- Empty State -->
+    <div *ngIf="filteredProducts().length === 0" class="empty-state">
+      <p class="empty-icon">📭</p>
+      <p class="empty-message">
+        {{ searchQuery() ? 'No se encontraron productos con esa búsqueda' : 'No hay productos registrados' }}
+      </p>
+      <button 
+        class="btn btn-primary btn-sm" 
+        (click)="openProductFormModal()"
+        *ngIf="!searchQuery()"
+      >
+        ➕ Crear primer producto
+      </button>
+    </div>
+
+    <!-- Product Cards -->
+    <div *ngFor="let product of filteredProducts()" class="product-card">
+      <div class="product-header">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <div class="product-actions">
+          <button 
+            class="btn-action btn-edit" 
+            (click)="openEditProductModal(product)"
+            title="Editar producto"
+            [disabled]="isLoading()"
+          >
+            ✏️
+          </button>
+          <button 
+            class="btn-action btn-sale" 
+            (click)="openProductSaleModal(product)"
+            title="Registrar venta"
+            [disabled]="isLoading()"
+          >
+            💳
+          </button>
+          <button 
+            class="btn-action btn-delete" 
+            (click)="deleteProduct(product)"
+            title="Eliminar producto"
+            [disabled]="isLoading()"
+          >
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <div class="product-body">
+        <!-- Stock Status -->
+        <div class="stock-section">
+          <span class="label">Stock:</span>
+          <span class="value" [class.low-stock]="product.quantity < 5">
+            {{ product.quantity }} unidades
+          </span>
+          <span *ngIf="product.quantity < 5" class="badge-warning">⚠️ Bajo</span>
+        </div>
+
+        <!-- Pricing -->
+        <div class="pricing-row">
+          <div class="pricing-item">
+            <span class="label">Precio Costo:</span>
+            <span class="value">S/ {{ product.costPrice.toFixed(2) }}</span>
+          </div>
+          <div class="pricing-item">
+            <span class="label">Precio Venta:</span>
+            <span class="value">S/ {{ product.salePrice.toFixed(2) }}</span>
+          </div>
+        </div>
+
+        <!-- Profit Info -->
+        <div class="profit-section">
+          <div class="profit-item">
+            <span class="label">Ganancia/Unidad:</span>
+            <span class="value profit">
+              S/ {{ (product.salePrice - product.costPrice).toFixed(2) }}
+              ({{ calculateMarginPercentage(product).toFixed(1) }}%)
+            </span>
+          </div>
+          <div class="profit-item">
+            <span class="label">Ganancia Total:</span>
+            <span class="value profit-total">
+              S/ {{ calculateProfit(product).toFixed(2) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Timestamps -->
+        <div class="timestamps">
+          <small class="text-muted">
+            {{ product.createdAt | date:'short' }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Form Modal -->
+  <app-product-form
+    *ngIf="showProductFormModal()"
+    (productCreated)="onProductCreated($event)"
+    (modalClosed)="closeProductFormModal()"
+  ></app-product-form>
+
+  <!-- Product Sale Modal -->
+  <app-product-sale
+    *ngIf="showProductSaleModal()"
+    [selectedProduct]="selectedProduct()"
+    (saleClosed)="closeProductSaleModal()"
+  ></app-product-sale>
+</div>

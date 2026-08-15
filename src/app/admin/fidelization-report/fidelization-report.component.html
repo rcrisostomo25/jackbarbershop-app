@@ -1,0 +1,244 @@
+<div class="report-container">
+  <!-- Header -->
+  <div class="report-header">
+    <h1>📊 Reporte de Fidelización</h1>
+    <p class="period" *ngIf="report()">Período: {{ report()!.period }}</p>
+  </div>
+
+  <!-- Date Range Controls -->
+  <div class="date-range-controls">
+    <div class="range-buttons">
+      <button 
+        class="range-btn" 
+        [class.active]="selectedDateRange() === 'month'"
+        (click)="setDateRange('month')">
+        📅 Este Mes
+      </button>
+      <button 
+        class="range-btn" 
+        [class.active]="selectedDateRange() === 'quarter'"
+        (click)="setDateRange('quarter')">
+        📊 Este Trimestre
+      </button>
+      <button 
+        class="range-btn" 
+        [class.active]="selectedDateRange() === 'year'"
+        (click)="setDateRange('year')">
+        📈 Este Año
+      </button>
+    </div>
+
+    <div class="custom-date-range">
+      <div class="date-input-group">
+        <label for="start-date">Desde:</label>
+        <input 
+          type="date" 
+          id="start-date" 
+          [valueAsDate]="startDate()"
+          (change)="onStartDateChange($event)"
+        />
+      </div>
+      <div class="date-input-group">
+        <label for="end-date">Hasta:</label>
+        <input 
+          type="date" 
+          id="end-date" 
+          [valueAsDate]="endDate()"
+          (change)="onEndDateChange($event)"
+        />
+      </div>
+      <button class="btn btn-primary" (click)="loadReportByDateRange()" [disabled]="isLoading()">
+        🔍 Buscar
+      </button>
+    </div>
+  </div>
+
+  <!-- Export Buttons -->
+  <div class="export-controls">
+    <button class="btn btn-export btn-csv" (click)="exportToCSV()" [disabled]="isLoading() || !report()">
+      📥 Exportar CSV
+    </button>
+    <button class="btn btn-export btn-json" (click)="exportToJSON()" [disabled]="isLoading() || !report()">
+      📥 Exportar JSON
+    </button>
+    <button class="btn btn-export btn-print" (click)="printReport()" [disabled]="isLoading() || !report()">
+      🖨️ Imprimir
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-spinner">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p>Generando reporte...</p>
+  </div>
+
+  <!-- Report Content -->
+  <div *ngIf="report() && !isLoading()" class="report-content">
+    <!-- Key Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon">👥</div>
+        <div class="metric-info">
+          <span class="metric-label">Clientes Totales</span>
+          <span class="metric-value">{{ report()!.totalClients }}</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">📝</div>
+        <div class="metric-info">
+          <span class="metric-label">Visitas Totales</span>
+          <span class="metric-value">{{ report()!.totalVisits }}</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">📊</div>
+        <div class="metric-info">
+          <span class="metric-label">Promedio Visitas/Cliente</span>
+          <span class="metric-value">{{ (report()!.averageVisitsPerClient).toFixed(2) }}</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">🎁</div>
+        <div class="metric-info">
+          <span class="metric-label">Ofertas Canjeadas</span>
+          <span class="metric-value">{{ report()!.totalOffersRedeemed }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier Distribution -->
+    <div class="section-card">
+      <h3>📊 Distribución por Tier de Fidelización</h3>
+      <div class="tier-grid">
+        <div class="tier-item tier-new">
+          <div class="tier-header">
+            <span class="tier-icon">👤</span>
+            <span class="tier-name">Nuevos</span>
+          </div>
+          <div class="tier-body">
+            <span class="tier-count">{{ report()!.tierDistribution.new }}</span>
+            <span class="tier-range">(1-2 visitas)</span>
+          </div>
+          <div class="tier-percentage">
+            {{ ((report()!.tierDistribution.new / report()!.totalClients) * 100 | number: '1.0-0') }}%
+          </div>
+        </div>
+
+        <div class="tier-item tier-regular">
+          <div class="tier-header">
+            <span class="tier-icon">🎖️</span>
+            <span class="tier-name">Regulares</span>
+          </div>
+          <div class="tier-body">
+            <span class="tier-count">{{ report()!.tierDistribution.regular }}</span>
+            <span class="tier-range">(3-4 visitas)</span>
+          </div>
+          <div class="tier-percentage">
+            {{ ((report()!.tierDistribution.regular / report()!.totalClients) * 100 | number: '1.0-0') }}%
+          </div>
+        </div>
+
+        <div class="tier-item tier-premium">
+          <div class="tier-header">
+            <span class="tier-icon">⭐</span>
+            <span class="tier-name">Premium</span>
+          </div>
+          <div class="tier-body">
+            <span class="tier-count">{{ report()!.tierDistribution.premium }}</span>
+            <span class="tier-range">(5-9 visitas)</span>
+          </div>
+          <div class="tier-percentage">
+            {{ ((report()!.tierDistribution.premium / report()!.totalClients) * 100 | number: '1.0-0') }}%
+          </div>
+        </div>
+
+        <div class="tier-item tier-vip">
+          <div class="tier-header">
+            <span class="tier-icon">🏆</span>
+            <span class="tier-name">VIP</span>
+          </div>
+          <div class="tier-body">
+            <span class="tier-count">{{ report()!.tierDistribution.vip }}</span>
+            <span class="tier-range">(10+ visitas)</span>
+          </div>
+          <div class="tier-percentage">
+            {{ ((report()!.tierDistribution.vip / report()!.totalClients) * 100 | number: '1.0-0') }}%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Offers Breakdown -->
+    <div class="section-card">
+      <h3>🎁 Desglose de Ofertas Canjeadas</h3>
+      <div class="offers-grid">
+        <div class="offer-item">
+          <div class="offer-icon">🎉</div>
+          <div class="offer-info">
+            <span class="offer-name">Promociones Generales</span>
+            <span class="offer-count">{{ report()!.offerBreakdown.promo }}</span>
+          </div>
+        </div>
+
+        <div class="offer-item">
+          <div class="offer-icon">💰</div>
+          <div class="offer-info">
+            <span class="offer-name">Descuentos 5%</span>
+            <span class="offer-count">{{ report()!.offerBreakdown.discount_5 }}</span>
+          </div>
+        </div>
+
+        <div class="offer-item">
+          <div class="offer-icon">🛍️</div>
+          <div class="offer-info">
+            <span class="offer-name">Productos Exclusivos</span>
+            <span class="offer-count">{{ report()!.offerBreakdown.exclusive_products }}</span>
+          </div>
+        </div>
+
+        <div class="offer-item">
+          <div class="offer-icon">✂️</div>
+          <div class="offer-info">
+            <span class="offer-name">Cortes Gratis</span>
+            <span class="offer-count">{{ report()!.offerBreakdown.free_cut }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Clients -->
+    <div class="section-card">
+      <h3>🌟 Top 5 Clientes</h3>
+      <div class="top-clients-table">
+        <div class="table-header">
+          <div class="col-name">Nombre</div>
+          <div class="col-phone">Teléfono</div>
+          <div class="col-visits">Visitas</div>
+          <div class="col-tier">Tier</div>
+        </div>
+        <div class="table-body">
+          <div *ngFor="let client of report()!.topClients; let i = index" class="table-row" [class]="'row-' + (i+1)">
+            <div class="col-name">
+              <span class="rank">{{ i + 1 }}</span> {{ client.name }}
+            </div>
+            <div class="col-phone">📱 {{ client.phone }}</div>
+            <div class="col-visits">{{ client.totalVisits }}</div>
+            <div class="col-tier">
+              <span class="tier-badge" [ngSwitch]="true">
+                <span *ngSwitchCase="client.totalVisits >= 10" class="badge badge-vip">🏆 VIP</span>
+                <span *ngSwitchCase="client.totalVisits >= 5" class="badge badge-premium">⭐ Premium</span>
+                <span *ngSwitchCase="client.totalVisits >= 3" class="badge badge-regular">🎖️ Regular</span>
+                <span *ngSwitchDefault class="badge badge-new">👤 Nuevo</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

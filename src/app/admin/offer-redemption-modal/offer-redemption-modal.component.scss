@@ -1,0 +1,359 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in;
+
+  .modal-content {
+    background-color: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  .btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+}
+
+.client-info-section {
+  padding: 20px;
+  background-color: #f0f7ff;
+  border-bottom: 1px solid #bee5eb;
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+
+    .info-label {
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .info-value {
+      font-weight: 500;
+      color: #212529;
+    }
+  }
+}
+
+.alert {
+  margin: 15px 20px 0;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  animation: slideUp 0.3s ease-out;
+
+  &.alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+  }
+
+  &.alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+  }
+}
+
+.offers-section,
+.redeemed-section {
+  padding: 20px;
+  border-top: 1px solid #dee2e6;
+
+  h4 {
+    margin: 0 0 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+  }
+}
+
+.no-offers {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.offers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .offer-card {
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    padding: 15px;
+    background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+    transition: all 0.3s;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .offer-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: flex-start;
+
+      .offer-emoji {
+        font-size: 1.5rem;
+        min-width: 30px;
+      }
+
+      .offer-title-info {
+        flex: 1;
+
+        h5 {
+          margin: 0 0 5px;
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: #212529;
+        }
+
+        .offer-requirement {
+          color: #6c757d;
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    .offer-body {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+
+      .offer-redeemed {
+        flex: 1;
+
+        .redeemed-badge {
+          display: inline-block;
+          background-color: #28a745;
+          color: white;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+      }
+
+      .btn-redeem {
+        background-color: #ffc107;
+        border: none;
+        color: #212529;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+
+        &:hover:not(:disabled) {
+          background-color: #ff9800;
+          color: white;
+          transform: translateY(-2px);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    .offer-expiry {
+      text-align: right;
+      font-size: 0.8rem;
+      color: #6c757d;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 193, 7, 0.2);
+    }
+  }
+}
+
+.redeemed-section {
+  .redeemed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .redeemed-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 6px;
+
+      .redeemed-check {
+        width: 30px;
+        height: 30px;
+        background-color: #28a745;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        flex-shrink: 0;
+      }
+
+      .redeemed-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+
+        .redeemed-name {
+          font-weight: 600;
+          color: #155724;
+        }
+
+        .redeemed-date {
+          color: #155724;
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px;
+  border-top: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+  position: sticky;
+  bottom: 0;
+
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &.btn-secondary {
+      background-color: #6c757d;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background-color: #5a6268;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal-overlay {
+    .modal-content {
+      width: 95%;
+      border-radius: 8px;
+    }
+  }
+
+  .modal-header {
+    h3 {
+      font-size: 1.1rem;
+    }
+  }
+
+  .offers-list {
+    .offer-card {
+      padding: 12px;
+
+      .offer-body {
+        flex-direction: column;
+
+        .btn-redeem {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

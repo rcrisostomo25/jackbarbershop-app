@@ -1,0 +1,109 @@
+<div class="dashboard-wrapper">
+  <!-- Main Content -->
+  <main class="dashboard-content container-fluid py-5">
+    <!-- Welcome Section -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <h2 class="mb-1">Bienvenido, {{ currentUser()?.displayName }}! 👋</h2>
+        <p class="text-muted mb-0">{{ getRoleLabel(currentUser()?.role || '') }}</p>
+      </div>
+    </div>
+
+    <!-- Action Cards Grid -->
+    <div class="row g-4">
+      <!-- Schedule Appointment Card (for customers) -->
+      <div class="col-md-6 col-lg-4" *ngIf="currentUser()?.role === 'customer'">
+        <div class="card h-100 action-card">
+          <div class="card-body">
+            <div class="card-icon mb-3">
+              📅
+            </div>
+            <h5 class="card-title">Agendar Cita</h5>
+            <p class="card-text text-muted">Reserva tu próxima cita de barbería</p>
+          </div>
+          <div class="card-footer bg-white border-top-0">
+            <a routerLink="/appointments" class="btn btn-primary btn-sm w-100">
+              Agendar Ahora
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Appointments Card -->
+      <div class="col-md-6 col-lg-4" *ngIf="currentUser()?.role !== 'admin'">
+        <div class="card h-100 action-card">
+          <div class="card-body">
+            <div class="card-icon mb-3">
+              ✅
+            </div>
+            <h5 class="card-title">Mis Citas</h5>
+            <p class="card-text text-muted">
+              {{
+                currentUser()?.role === 'customer'
+                  ? 'Visualiza tus citas agendadas'
+                  : 'Gestiona tus disponibilidades'
+              }}
+            </p>
+          </div>
+          <div class="card-footer bg-white border-top-0">
+            <a routerLink="/appointments" class="btn btn-primary btn-sm w-100">
+              Ver Citas
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Profile Card -->
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 action-card">
+          <div class="card-body">
+            <div class="card-icon mb-3">
+              👤
+            </div>
+            <h5 class="card-title">Mi Perfil</h5>
+            <p class="card-text text-muted">Actualiza tus datos personales</p>
+          </div>
+          <div class="card-footer bg-white border-top-0">
+            <a routerLink="/profile" class="btn btn-primary btn-sm w-100">
+              Editar Perfil
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Panel Card -->
+      <div class="col-md-6 col-lg-4" *ngIf="currentUser()?.role === 'admin'">
+        <div class="card h-100 action-card">
+          <div class="card-body">
+            <div class="card-icon mb-3">
+              ⚙️
+            </div>
+            <h5 class="card-title">Administración</h5>
+            <p class="card-text text-muted">Gestiona la barbería</p>
+          </div>
+          <div class="card-footer bg-white border-top-0">
+            <a routerLink="/admin" class="btn btn-primary btn-sm w-100">
+              Acceder
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- Services Card -->
+      <div class="col-md-6 col-lg-4" *ngIf="currentUser()?.role === 'admin' || currentUser()?.role === 'barber'">
+        <div class="card h-100 action-card">
+          <div class="card-body">
+            <div class="card-icon mb-3">
+              📊
+            </div>
+            <h5 class="card-title">Servicios</h5>
+            <p class="card-text text-muted">Registra y visualiza servicios del día</p>
+          </div>
+          <div class="card-footer bg-white border-top-0">
+            <a routerLink="/services" class="btn btn-primary btn-sm w-100">
+              Ver Servicios
+            </a>
+          </div>
+        </div>
+      </div>    </div>
+  </main>
+</div>

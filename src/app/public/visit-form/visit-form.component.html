@@ -1,0 +1,104 @@
+<div class="visit-form-container">
+  <div class="form-wrapper">
+    <!-- Header -->
+    <div class="form-header">
+      <h1>💇 Registro de Visita</h1>
+      <p>Completa el formulario para registrar tu visita a la barbería</p>
+    </div>
+
+    <!-- Error Message -->
+    <div class="alert alert-danger" *ngIf="errorMessage()">
+      {{ errorMessage() }}
+    </div>
+
+    <!-- Success Message -->
+    <div class="alert alert-success" *ngIf="successMessage()">
+      {{ successMessage() }}
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="visit-form">
+      <div class="form-group">
+        <label for="clientName">
+          👤 Nombre Completo <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="clientName"
+          formControlName="clientName"
+          class="form-control"
+          [class.is-invalid]="form.get('clientName')?.invalid && (form.get('clientName')?.dirty || submitted())"
+          placeholder="Tu nombre completo"
+        />
+        <div class="invalid-feedback" *ngIf="form.get('clientName')?.invalid && (form.get('clientName')?.dirty || submitted())">
+          <span *ngIf="form.get('clientName')?.errors?.['required']">El nombre es requerido</span>
+          <span *ngIf="form.get('clientName')?.errors?.['minlength']">Mínimo 3 caracteres</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="clientPhone">
+          📱 Número de Teléfono <span class="required">*</span>
+        </label>
+        <input
+          type="tel"
+          id="clientPhone"
+          formControlName="clientPhone"
+          class="form-control"
+          [class.is-invalid]="form.get('clientPhone')?.invalid && (form.get('clientPhone')?.dirty || submitted())"
+          placeholder="Teléfono (mínimo 7 dígitos)"
+          inputmode="tel"
+        />
+        <div class="invalid-feedback" *ngIf="form.get('clientPhone')?.invalid && (form.get('clientPhone')?.dirty || submitted())">
+          <span *ngIf="form.get('clientPhone')?.errors?.['required']">El teléfono es requerido</span>
+          <span *ngIf="form.get('clientPhone')?.errors?.['pattern']">Debe tener al menos 7 dígitos</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="visitKey">
+          🔐 Clave de Acceso <span class="required">*</span>
+        </label>
+        <input
+          type="password"
+          id="visitKey"
+          formControlName="visitKey"
+          class="form-control"
+          [class.is-invalid]="form.get('visitKey')?.invalid && (form.get('visitKey')?.dirty || submitted())"
+          placeholder="Ingresa los 4 dígitos"
+          maxlength="4"
+          inputmode="numeric"
+        />
+        <div class="invalid-feedback" *ngIf="form.get('visitKey')?.invalid && (form.get('visitKey')?.dirty || submitted())">
+          <span *ngIf="form.get('visitKey')?.errors?.['required']">La clave es requerida</span>
+          <span *ngIf="form.get('visitKey')?.errors?.['minlength'] || form.get('visitKey')?.errors?.['maxlength']">Debe ser exactamente 4 dígitos</span>
+          <span *ngIf="form.get('visitKey')?.errors?.['pattern']">Solo se permiten números</span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="resetForm()"
+          [disabled]="isLoading()"
+        >
+          Limpiar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isLoading()"
+        >
+          <span *ngIf="!isLoading()">✅ Registrar Visita</span>
+          <span *ngIf="isLoading()">Procesando...</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Info Box -->
+    <div class="info-box">
+      <p><strong>Nota:</strong> Necesitas una clave de acceso para registrar tu visita. Si no la tienes, contacta a la barbería.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="success-container">
+  <div class="success-card">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+
+    <h1>¡Visita Registrada con Éxito! ✅</h1>
+    <p class="subtitle">Tu visita ha sido confirmada en nuestro sistema</p>
+
+    <div class="info-section">
+      <div class="info-item">
+        <span class="label">Teléfono Registrado:</span>
+        <span class="value">{{ clientPhone() }}</span>
+      </div>
+      <div class="info-item">
+        <span class="label">Fecha de Registro:</span>
+        <span class="value">{{ getCurrentDate() }}</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" (click)="goToViewVisits()">
+        📋 Ver mis Visitas
+      </button>
+      <button class="btn btn-secondary" (click)="goToRegisterAgain()">
+        ➕ Registrar otra Visita
+      </button>
+    </div>
+
+    <div class="message-box">
+      <p>Gracias por visitarnos. ¡Esperamos verte pronto en la barbería! 💇</p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; {{ currentYear }} Jack's Barber Shop. Todos los derechos reservados.</p>
+  </footer>
+</div>

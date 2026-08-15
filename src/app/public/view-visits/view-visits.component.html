@@ -1,0 +1,83 @@
+<div class="visits-container">
+  <div class="visits-wrapper">
+    <!-- Header -->
+    <div class="visits-header">
+      <div class="header-content">
+        <h1>📋 Mis Visitas</h1>
+        <p class="phone-display">{{ clientPhone() }}</p>
+      </div>
+      <button class="btn-back" (click)="goBackToRegister()" title="Volver">
+        ← Volver
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" *ngIf="isLoading()">
+      <div class="spinner"></div>
+      <p>Cargando visitas...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="alert alert-danger" *ngIf="!isLoading() && errorMessage()">
+      ❌ {{ errorMessage() }}
+    </div>
+
+    <!-- No Visits State -->
+    <div class="empty-state" *ngIf="!isLoading() && !errorMessage() && getTotalVisits() === 0">
+      <div class="empty-icon">📭</div>
+      <h3>Sin visitas registradas</h3>
+      <p>Aún no tienes visitas registradas en nuestro sistema.</p>
+      <button class="btn btn-primary" (click)="registerNewVisit()">
+        ➕ Registrar tu Primera Visita
+      </button>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section" *ngIf="!isLoading() && !errorMessage() && getTotalVisits() > 0">
+      <div class="stat-card">
+        <div class="stat-number">{{ getTotalVisits() }}</div>
+        <div class="stat-label">Visitas Totales</div>
+      </div>
+      <div class="stat-card" *ngIf="getLastVisit()">
+        <div class="stat-number">{{ getDaysSinceLastVisit() }}</div>
+        <div class="stat-label">{{ getDaysSinceLastVisit() === 1 ? 'Día' : 'Días' }} desde última visita</div>
+      </div>
+    </div>
+
+    <!-- Visits List -->
+    <div class="visits-list" *ngIf="!isLoading() && !errorMessage() && getTotalVisits() > 0">
+      <h2>Historial de Visitas</h2>
+      <div class="visit-item" *ngFor="let visit of visits(); let i = index">
+        <div class="visit-header">
+          <div class="visit-number">
+            <span class="badge">{{ i + 1 }}</span>
+          </div>
+          <div class="visit-info">
+            <div class="visit-date">
+              📅 {{ formatDate(visit.visitDate) }}
+            </div>
+            <div class="visit-time" *ngIf="visit.visitDate">
+              🕐 {{ formatTime(visit.visitDate) }}
+            </div>
+          </div>
+        </div>
+        <div class="visit-details" *ngIf="visit.servicePerformed || visit.recommendations">
+          <p *ngIf="visit.servicePerformed"><strong>Servicio:</strong> {{ visit.servicePerformed }}</p>
+          <p *ngIf="visit.recommendations"><strong>Recomendaciones:</strong> {{ visit.recommendations }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions" *ngIf="!isLoading() && !errorMessage()">
+      <button class="btn btn-primary" (click)="registerNewVisit()">
+        ➕ Registrar otra Visita
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; {{ currentYear }} Jack's Barber Shop. Todos los derechos reservados.</p>
+  </footer>
+</div>

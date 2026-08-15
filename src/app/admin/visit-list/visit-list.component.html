@@ -1,0 +1,208 @@
+<div class="visits-container">
+  <!-- Header Section -->
+  <div class="visits-header">
+    <h2>📝 Registro de Visitas (Programa de Fidelización)</h2>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="openVisitFormModal()" [disabled]="isLoading()">
+        ➕ Nueva Visita
+      </button>
+      <button class="btn btn-secondary" (click)="openPublicVisitForm()" [disabled]="isLoading()" title="Abre en nueva pestaña">
+        🌐 Portal Público
+      </button>
+    </div>
+  </div>
+
+  <!-- View Mode Tabs -->
+  <div class="view-mode-tabs">
+    <button 
+      class="tab-btn" 
+      [class.active]="viewMode() === 'list'"
+      (click)="switchViewMode('list')"
+      [disabled]="isLoading()">
+      📋 Historial de Visitas
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="viewMode() === 'stats'"
+      (click)="switchViewMode('stats')"
+      [disabled]="isLoading()">
+      📊 Estadísticas por Cliente
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section" *ngIf="viewMode() === 'list'">
+    <div class="search-wrapper">
+      <input
+        #searchInput
+        type="text"
+        class="form-control search-input"
+        placeholder="🔍 Buscar por celular, nombre o corte..."
+        [(ngModel)]="searchQuery"
+        (input)="searchVisits()"
+        [disabled]="isLoading()"
+      />
+      <button 
+        *ngIf="searchQuery()" 
+        class="btn-clear-search" 
+        (click)="clearSearch()"
+        title="Limpiar búsqueda"
+      >
+        ✕
+      </button>
+    </div>
+    <small class="text-muted">{{ filteredVisits().length }} visita(s) encontrada(s)</small>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-spinner">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p>Cargando datos...</p>
+  </div>
+
+  <!-- VIEW MODE: LIST -->
+  <div *ngIf="viewMode() === 'list' && !isLoading()" class="visits-list-container">
+    <!-- Empty State -->
+    <div *ngIf="filteredVisits().length === 0" class="empty-state">
+      <p class="empty-icon">📭</p>
+      <p class="empty-message">
+        {{ searchQuery() ? 'No se encontraron visitas con esa búsqueda' : 'No hay visitas registradas' }}
+      </p>
+      <button 
+        class="btn btn-primary btn-sm" 
+        (click)="openVisitFormModal()"
+        *ngIf="!searchQuery()"
+      >
+        ➕ Registrar primera visita
+      </button>
+    </div>
+
+    <!-- Visit Cards -->
+    <div class="visits-list">
+      <div *ngFor="let visit of filteredVisits()" class="visit-card">
+        <div class="visit-header">
+          <div class="client-info">
+            <h3>{{ visit.clientName }}</h3>
+            <p class="phone">📱 {{ visit.clientPhone }}</p>
+          </div>
+          <div class="visit-actions">
+            <button 
+              class="btn-action btn-delete" 
+              (click)="deleteVisit(visit)"
+              title="Eliminar visita"
+              [disabled]="isLoading()"
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
+
+        <div class="visit-body">
+          <!-- Service Info -->
+          <div class="service-section">
+            <span class="label">Corte Realizado:</span>
+            <span class="value">{{ visit.servicePerformed }}</span>
+          </div>
+
+          <!-- Recommendations -->
+          <div *ngIf="visit.recommendations" class="recommendations-section">
+            <span class="label">💡 Recomendaciones:</span>
+            <p class="value">{{ visit.recommendations }}</p>
+          </div>
+
+          <!-- Date -->
+          <div class="date-section">
+            <small class="text-muted">
+              {{ visit.visitDate | date:'short' }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW MODE: STATISTICS -->
+  <div *ngIf="viewMode() === 'stats' && !isLoading()" class="stats-container">
+    <!-- Empty State -->
+    <div *ngIf="clientStats().length === 0" class="empty-state">
+      <p class="empty-icon">📊</p>
+      <p class="empty-message">No hay datos de clientes</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div *ngFor="let stat of clientStats()" 
+        class="stat-card" 
+        [class]="'stat-' + getFidelizationColor(stat.totalVisits)">
+        
+        <div class="stat-header">
+          <div class="client-identity">
+            <h4>{{ stat.name }}</h4>
+            <p class="phone">📱 {{ stat.phone }}</p>
+          </div>
+          <div class="fidelization-badge">
+            {{ getFidelizationMessage(stat.totalVisits) }}
+          </div>
+        </div>
+
+        <div class="stat-body">
+          <!-- Visit Count -->
+          <div class="stat-metric">
+            <span class="metric-label">Total de Visitas</span>
+            <span class="metric-value">{{ stat.totalVisits }}</span>
+          </div>
+
+          <!-- Last Visit -->
+          <div class="stat-metric" *ngIf="stat.lastVisit">
+            <span class="metric-label">Última Visita</span>
+            <span class="metric-value">{{ stat.lastVisit | date:'short' }}</span>
+          </div>
+
+          <!-- Fidelization Progress -->
+          <div class="progress-section">
+            <div class="progress-bar-container">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width]="(stat.totalVisits / 10 * 100) + '%'"></div>
+              </div>
+              <span class="progress-text">{{ stat.totalVisits }}/10 visitas para VIP</span>
+            </div>
+          </div>
+
+          <!-- Offers -->
+          <div class="offers-section">
+            <span class="offers-label">🎁 Ofertas Disponibles:</span>
+            <ul class="offers-list">
+              <li *ngIf="stat.totalVisits >= 1">Acceso a promociones generales</li>
+              <li *ngIf="stat.totalVisits >= 3">Descuento del 5% en servicios</li>
+              <li *ngIf="stat.totalVisits >= 5">Acceso a productos exclusivos</li>
+              <li *ngIf="stat.totalVisits >= 10">Corte gratis cada 10 visitas</li>
+            </ul>
+            <button 
+              class="btn btn-offer-redeem" 
+              (click)="openOfferRedemptionModal(stat)"
+              [disabled]="isLoading()"
+              title="Canjear ofertas de fidelización">
+              🎁 Canjear Oferta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offer Redemption Modal -->
+  <app-offer-redemption-modal
+    *ngIf="showOfferRedemptionModal()"
+    [clientStats]="selectedClientForRedemption()"
+    (modalClosed)="closeOfferRedemptionModal()"
+  ></app-offer-redemption-modal>
+
+  <!-- Visit Register Modal -->
+  <app-visit-register
+    *ngIf="showVisitFormModal()"
+    (visitRegistered)="onVisitRegistered($event)"
+    (modalClosed)="closeVisitFormModal()"
+  ></app-visit-register>
+</div>

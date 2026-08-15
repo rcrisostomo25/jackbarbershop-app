@@ -1,0 +1,158 @@
+<div class="register-wrapper">
+  <div class="container-fluid d-flex align-items-center justify-content-center min-vh-100">
+    <div class="register-card">
+      <!-- Header -->
+      <div class="register-header text-center mb-4">
+        <h1 class="register-title mb-2">Jack BarberShop</h1>
+        <p class="register-subtitle">Crea tu cuenta</p>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <small>{{ errorMessage() }}</small>
+        <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Info: Solo se pueden registrar clientes -->
+        <div class="alert alert-info" role="alert">
+          <small>Para registrarse como barbero, contacta al administrador</small>
+        </div>
+
+        <!-- Full Name -->
+        <div class="mb-3">
+          <label for="displayName" class="form-label">Nombre Completo</label>
+          <input
+            type="text"
+            class="form-control"
+            id="displayName"
+            placeholder="Tu nombre"
+            formControlName="displayName"
+            [class.is-invalid]="submitted() && displayName?.invalid"
+            [disabled]="isLoading()"
+          />
+          <div class="invalid-feedback d-block" *ngIf="submitted() && displayName?.invalid">
+            <small *ngIf="displayName!.errors?.['required']">El nombre es requerido</small>
+            <small *ngIf="displayName!.errors?.['minlength']">Mínimo 3 caracteres</small>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label for="email" class="form-label">Correo Electrónico</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            placeholder="tu@email.com"
+            formControlName="email"
+            [class.is-invalid]="submitted() && email?.invalid"
+            [disabled]="isLoading()"
+          />
+          <div class="invalid-feedback d-block" *ngIf="submitted() && email?.invalid">
+            <small *ngIf="email!.errors?.['required']">El email es requerido</small>
+            <small *ngIf="email!.errors?.['email']">Email inválido</small>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="mb-3">
+          <label for="phone" class="form-label">Teléfono</label>
+          <input
+            type="tel"
+            class="form-control"
+            id="phone"
+            placeholder="1234567890"
+            formControlName="phone"
+            [class.is-invalid]="submitted() && phone?.invalid"
+            [disabled]="isLoading()"
+          />
+          <div class="invalid-feedback d-block" *ngIf="submitted() && phone?.invalid">
+            <small *ngIf="phone!.errors?.['required']">El teléfono es requerido</small>
+            <small *ngIf="phone!.errors?.['pattern']">Mínimo 10 dígitos</small>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+          <label for="password" class="form-label">Contraseña</label>
+          <div class="input-group">
+            <input
+              [type]="hidePassword() ? 'password' : 'text'"
+              class="form-control"
+              id="password"
+              placeholder="••••••"
+              formControlName="password"
+              [class.is-invalid]="submitted() && password?.invalid"
+              [disabled]="isLoading()"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="togglePasswordVisibility()"
+              [disabled]="isLoading()"
+            >
+              <i [class]="hidePassword() ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+            </button>
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="submitted() && password?.invalid">
+            <small *ngIf="password!.errors?.['required']">La contraseña es requerida</small>
+            <small *ngIf="password!.errors?.['minlength']">Mínimo 6 caracteres</small>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-4">
+          <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+          <div class="input-group">
+            <input
+              [type]="hideConfirmPassword() ? 'password' : 'text'"
+              class="form-control"
+              id="confirmPassword"
+              placeholder="••••••"
+              formControlName="confirmPassword"
+              [class.is-invalid]="submitted() && confirmPassword?.invalid"
+              [disabled]="isLoading()"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="toggleConfirmPasswordVisibility()"
+              [disabled]="isLoading()"
+            >
+              <i [class]="hideConfirmPassword() ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+            </button>
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="submitted() && confirmPassword?.invalid">
+            <small *ngIf="confirmPassword!.errors?.['required']">Confirma tu contraseña</small>
+            <small *ngIf="registerForm.errors?.['passwordMismatch']">Las contraseñas no coinciden</small>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="btn btn-primary w-100 mb-3"
+          [disabled]="isLoading()"
+        >
+          <span *ngIf="!isLoading()">Crear Cuenta</span>
+          <span *ngIf="isLoading()">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Creando...
+          </span>
+        </button>
+      </form>
+
+      <!-- Footer Links -->
+      <div class="register-footer">
+        <p class="text-center text-muted">
+          ¿Ya tienes cuenta?
+          <a routerLink="/login" class="text-decoration-none text-accent fw-bold">
+            Iniciar Sesión
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,122 @@
+<div class="modal-overlay" *ngIf="true">
+  <div class="modal-content">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 *ngIf="!isEditMode()">📦 Registrar Nuevo Producto</h2>
+      <h2 *ngIf="isEditMode()">✏️ Editar Producto</h2>
+      <button type="button" class="btn-close" (click)="closeModal()" [disabled]="isLoading()"></button>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ errorMessage() }}
+      <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="formData()!" (ngSubmit)="onSubmit()" class="modal-body">
+      <!-- Nombre Producto -->
+      <div class="mb-3">
+        <label for="name" class="form-label">📝 Nombre del Producto</label>
+        <input
+          type="text"
+          class="form-control"
+          id="name"
+          placeholder="Ej: Shampoo Profesional"
+          formControlName="name"
+          [class.is-invalid]="submitted() && name?.invalid"
+          [disabled]="isLoading()"
+        />
+        <div class="invalid-feedback d-block" *ngIf="submitted() && name?.invalid">
+          <small *ngIf="name!.errors?.['required']">El nombre es requerido</small>
+          <small *ngIf="name!.errors?.['minlength']">Mínimo 3 caracteres</small>
+        </div>
+      </div>
+
+      <!-- Cantidad -->
+      <div class="mb-3">
+        <label for="quantity" class="form-label">📊 Cantidad en Stock</label>
+        <input
+          type="number"
+          class="form-control"
+          id="quantity"
+          placeholder="Ej: 50"
+          formControlName="quantity"
+          [class.is-invalid]="submitted() && quantity?.invalid"
+          [disabled]="isLoading()"
+          min="1"
+        />
+        <div class="invalid-feedback d-block" *ngIf="submitted() && quantity?.invalid">
+          <small *ngIf="quantity!.errors?.['required']">La cantidad es requerida</small>
+          <small *ngIf="quantity!.errors?.['min']">Debe ser mayor a 0</small>
+        </div>
+      </div>
+
+      <!-- Precio Costo -->
+      <div class="mb-3">
+        <label for="costPrice" class="form-label">💰 Precio Costo (Unidad/Paquete)</label>
+        <input
+          type="number"
+          class="form-control"
+          id="costPrice"
+          placeholder="Ej: 5.50"
+          formControlName="costPrice"
+          [class.is-invalid]="submitted() && costPrice?.invalid"
+          [disabled]="isLoading()"
+          min="0"
+          step="0.01"
+        />
+        <div class="invalid-feedback d-block" *ngIf="submitted() && costPrice?.invalid">
+          <small *ngIf="costPrice!.errors?.['required']">El precio costo es requerido</small>
+          <small *ngIf="costPrice!.errors?.['min']">Debe ser un valor válido</small>
+        </div>
+      </div>
+
+      <!-- Precio Venta -->
+      <div class="mb-4">
+        <label for="salePrice" class="form-label">💵 Precio Venta al Cliente</label>
+        <input
+          type="number"
+          class="form-control"
+          id="salePrice"
+          placeholder="Ej: 12.00"
+          formControlName="salePrice"
+          [class.is-invalid]="submitted() && salePrice?.invalid"
+          [disabled]="isLoading()"
+          min="0"
+          step="0.01"
+        />
+        <div class="invalid-feedback d-block" *ngIf="submitted() && salePrice?.invalid">
+          <small *ngIf="salePrice!.errors?.['required']">El precio venta es requerido</small>
+          <small *ngIf="salePrice!.errors?.['min']">Debe ser un valor válido</small>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeModal()"
+          [disabled]="isLoading()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isLoading()"
+        >
+          <span *ngIf="!isLoading()">
+            <span *ngIf="isEditMode()">💾 Actualizar</span>
+            <span *ngIf="!isEditMode()">💾 Guardar</span>
+          </span>
+          <span *ngIf="isLoading()">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Procesando...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<div class="modal-overlay" *ngIf="true">
+  <div class="modal-content">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>💳 Registrar Venta - {{ selectedProduct()?.name }}</h2>
+      <button type="button" class="btn-close" (click)="closeModal()" [disabled]="isLoading()"></button>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ errorMessage() }}
+      <button type="button" class="btn-close" (click)="errorMessage.set('')"></button>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage()" class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ successMessage() }}
+      <button type="button" class="btn-close" (click)="successMessage.set('')"></button>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="formData()!" (ngSubmit)="onSubmit()" class="modal-body">
+      <!-- Product Info -->
+      <div class="product-info" *ngIf="selectedProduct()">
+        <div class="info-item">
+          <span class="label">Producto:</span>
+          <span class="value">{{ selectedProduct()?.name }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Stock Disponible:</span>
+          <span class="value">{{ selectedProduct()?.quantity }} unidades</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Precio Costo:</span>
+          <span class="value">S/ {{ selectedProduct()!.costPrice.toFixed(2) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Precio Venta:</span>
+          <span class="value">S/ {{ selectedProduct()!.salePrice.toFixed(2) }}</span>
+        </div>
+      </div>
+
+      <!-- Quantity Sold -->
+      <div class="mb-3">
+        <label for="quantitySold" class="form-label">📦 Cantidad a Vender</label>
+        <input
+          type="number"
+          class="form-control"
+          id="quantitySold"
+          placeholder="Ej: 5"
+          formControlName="quantitySold"
+          (change)="calculateProfit()"
+          [class.is-invalid]="submitted() && quantitySold?.invalid"
+          [disabled]="isLoading()"
+          min="1"
+          [max]="selectedProduct()?.quantity || 999"
+        />
+        <small class="form-text text-muted">Máximo disponible: {{ selectedProduct()?.quantity }} unidades</small>
+        <div class="invalid-feedback d-block" *ngIf="submitted() && quantitySold?.invalid">
+          <small *ngIf="quantitySold!.errors?.['required']">La cantidad es requerida</small>
+          <small *ngIf="quantitySold!.errors?.['min']">Debe vender al menos 1 unidad</small>
+        </div>
+      </div>
+
+      <!-- Profit Calculation -->
+      <div class="profit-section" *ngIf="totalProfit() > 0">
+        <div class="profit-card">
+          <p class="profit-label">💰 Ganancia Total:</p>
+          <p class="profit-value">S/ {{ totalProfit().toFixed(2) }}</p>
+          <small class="profit-info">
+            {{ formData()?.get('quantitySold')?.value || 0 }} unidades × 
+            S/ {{ ((selectedProduct()!.salePrice || 0) - (selectedProduct()!.costPrice || 0)).toFixed(2) }} por unidad
+          </small>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeModal()"
+          [disabled]="isLoading()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="isLoading()"
+        >
+          <span *ngIf="!isLoading()">
+            <span>✓ Registrar Venta</span>
+          </span>
+          <span *ngIf="isLoading()">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Procesando...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
