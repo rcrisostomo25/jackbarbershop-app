@@ -37,59 +37,66 @@
     </div>
   </div>
 
-  <!-- Filters Panel -->
-  <div class="filters-section">
-    <button class="filter-toggle" (click)="toggleFilters()">
-      {{ showFilters() ? '🔽' : '▶️' }} Filtros {{ showFilters() ? '(Abierto)' : '(Cerrado)' }}
-    </button>
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-toggle">
+      <button class="btn btn-sm btn-secondary" (click)="toggleFilters()">
+        🔍 {{ showFilters() ? 'Ocultar' : 'Mostrar' }} Filtros
+      </button>
+      <button class="btn btn-sm btn-warning" (click)="resetFilters()">🔄 Limpiar Filtros</button>
+    </div>
 
+    <!-- Filters Panel -->
     <div class="filters-panel" *ngIf="showFilters()">
-      <!-- Date Filter Toggle -->
-      <div class="filter-row mb-3">
-        <div class="filter-group date-filter-toggle">
-          <label>
-            <input 
-              type="checkbox" 
-              [(ngModel)]="useDateRange"
-              (change)="loadServices()"
-              class="form-check-input"
-            />
-            <span>📅 Usar Rango de Fechas</span>
-          </label>
+      <!-- Search Row -->
+      <div class="filters-row">
+        <div class="filter-item search-item">
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="searchQuery"
+            (input)="loadServices()"
+            placeholder="🔍 Buscar servicio, barbero..."
+          />
         </div>
       </div>
 
-      <!-- Date Inputs -->
-      <div class="filter-row">
-        <!-- Single Date (default) -->
-        <div class="filter-group" *ngIf="!useDateRange()">
-          <label for="filterDate">📅 Fecha</label>
+      <!-- Date Range Toggle Row -->
+      <div class="filters-row">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="useDateRange" (change)="loadServices()" />
+          Usar rango de fechas
+        </label>
+      </div>
+
+      <!-- Date & Barber Row -->
+      <div class="filters-row">
+        <!-- Single Date Filter -->
+        <div class="filter-item" *ngIf="!useDateRange()">
+          <label>📅 Fecha:</label>
           <input
             type="date"
-            id="filterDate"
             class="form-control"
             [(ngModel)]="selectedDate"
             (change)="loadServices()"
           />
         </div>
 
-        <!-- Date Range (when toggle is active) -->
+        <!-- Date Range Filter -->
         <ng-container *ngIf="useDateRange()">
-          <div class="filter-group">
-            <label for="dateRangeStart">📅 Desde</label>
+          <div class="filter-item">
+            <label>📅 Desde:</label>
             <input
               type="date"
-              id="dateRangeStart"
               class="form-control"
               [(ngModel)]="dateRangeStart"
               (change)="loadServices()"
             />
           </div>
-          <div class="filter-group">
-            <label for="dateRangeEnd">📅 Hasta</label>
+          <div class="filter-item">
+            <label>📅 Hasta:</label>
             <input
               type="date"
-              id="dateRangeEnd"
               class="form-control"
               [(ngModel)]="dateRangeEnd"
               (change)="loadServices()"
@@ -97,37 +104,19 @@
           </div>
         </ng-container>
 
-        <div class="filter-group" *ngIf="currentUser()?.role === 'admin'">
-          <label for="filterBarber">✂️ Barbero</label>
+        <!-- Barber Filter (Admin Only) -->
+        <div class="filter-item" *ngIf="currentUser()?.role === 'admin'">
+          <label>✂️ Barbero:</label>
           <select
-            id="filterBarber"
             class="form-control"
             [(ngModel)]="selectedBarberId"
             (change)="loadServices()"
           >
-            <option value="">Todos los Barberos</option>
+            <option value="">Todos</option>
             <option *ngFor="let barber of barbers()" [value]="barber.id">
               {{ barber.displayName }}
             </option>
           </select>
-        </div>
-
-        <div class="filter-group">
-          <label for="searchQuery">🔍 Buscar</label>
-          <input
-            type="text"
-            id="searchQuery"
-            class="form-control"
-            [(ngModel)]="searchQuery"
-            placeholder="Nombre, barbero, comentarios..."
-            (keyup)="loadServices()"
-          />
-        </div>
-
-        <div class="filter-group">
-          <button class="btn btn-secondary" (click)="resetFilters()">
-            🔄 Resetear
-          </button>
         </div>
       </div>
     </div>
@@ -140,7 +129,7 @@
   </div>
 
   <!-- Services List -->
-  <div class="services-grid" *ngIf="!isLoading()">
+  <div class="services-container" *ngIf="!isLoading()">
     <!-- Empty State -->
     <div class="empty-state" *ngIf="services().length === 0">
       <div class="empty-icon">📭</div>
@@ -154,64 +143,71 @@
       </p>
     </div>
 
-    <!-- Service Cards -->
-    <div class="service-card" *ngFor="let service of services()">
-      <div class="card-header">
-        <div class="service-title">
-          <h3>{{ service.serviceName }}</h3>
-          <span class="service-date">📅 {{ formatDateOnly(service.createdAt) }}</span>
-          <span class="service-time">🕐 {{ formatTimeOnly(service.createdAt) }}</span>
-        </div>
-        <div class="card-actions">
-          <button
-            *ngIf="currentUser()?.role === 'admin'"
-            class="btn-icon edit"
-            (click)="openEditServiceModal(service)"
-            title="Editar"
-          >
-            ✏️
-          </button>
-          <button
-            *ngIf="currentUser()?.role === 'admin'"
-            class="btn-icon delete"
-            (click)="deleteService(service.id!, service.serviceName)"
-            title="Eliminar"
-          >
-            🗑️
-          </button>
-        </div>
-      </div>
-
-      <div class="card-body">
-        <div class="info-row">
-          <div class="info-item">
-            <span class="label">✂️ Barbero:</span>
-            <span class="value">{{ service.barberName }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">💵 Precio:</span>
-            <span class="value price">{{ formatCurrency(service.price) }}</span>
-          </div>
-        </div>
-
-        <div class="info-row">
-          <div class="info-item">
-            <span class="label">💳 Método de Pago:</span>
-            <span class="value">{{ getPaymentMethodLabel(service.paymentMethod) }}</span>
-          </div>
-        </div>
-
-        <div class="info-row full-width d-none d-lg-flex">
-          <div class="info-item">
-            <span class="label">📝 Comentarios:</span>
-            <span class="value comments">{{ service.comments || '-' }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-footer">
-        <small>{{ formatDateAndTime(service.createdAt) }}</small>
-      </div>
+    <!-- Services Table -->
+    <div class="table-wrapper" *ngIf="services().length > 0">
+      <table class="services-table">
+        <thead>
+          <tr>
+            <th>📋 Servicio</th>
+            <th>✂️ Barbero</th>
+            <th class="text-center">💵 Precio</th>
+            <th class="d-none d-md-table-cell">💳 Pago</th>
+            <th class="d-none d-lg-table-cell">📅 Fecha & Hora</th>
+            <th class="d-none d-xl-table-cell">📝 Comentarios</th>
+            <th class="text-center">⚙️ Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="service-row" *ngFor="let service of services()">
+            <td class="service-name" (click)="openServiceDetailsModal(service)" title="Click para ver detalles">
+              <span class="service-link">{{ service.serviceName }}</span>
+            </td>
+            <td class="barber-name">{{ service.barberName }}</td>
+            <td class="price text-center">
+              <span class="price-badge">{{ formatCurrency(service.price) }}</span>
+            </td>
+            <td class="payment-method d-none d-md-table-cell">
+              <span class="payment-badge">{{ getPaymentMethodLabel(service.paymentMethod) }}</span>
+            </td>
+            <td class="date-time d-none d-lg-table-cell">
+              <small>{{ formatDateAndTime(service.serviceDate || service.createdAt) }}</small>
+            </td>
+            <td class="comments d-none d-xl-table-cell">
+              <small class="comments-text">{{ truncateText(service.comments, 40) }}</small>
+            </td>
+            <td class="actions text-center">
+              <div class="action-buttons">
+                <button
+                  class="btn-action info"
+                  (click)="openServiceDetailsModal(service)"
+                  title="Ver detalles"
+                  type="button"
+                >
+                  ℹ️
+                </button>
+                <button
+                  *ngIf="currentUser()?.role === 'admin'"
+                  class="btn-action edit"
+                  (click)="openEditServiceModal(service)"
+                  title="Editar"
+                  type="button"
+                >
+                  ✏️
+                </button>
+                <button
+                  *ngIf="currentUser()?.role === 'admin'"
+                  class="btn-action delete"
+                  (click)="deleteService(service.id!, service.serviceName)"
+                  title="Eliminar"
+                  type="button"
+                >
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -235,8 +231,9 @@
               id="selectedBarberId"
               class="form-control"
               [class.is-invalid]="formErrors()['selectedBarberId']"
-              [value]="formData().selectedBarberId"
+              [(ngModel)]="formData().selectedBarberId"
               (change)="onSelectChange($event, 'selectedBarberId')"
+              name="selectedBarberId"
             >
               <option value="">Selecciona un barbero</option>
               <option *ngFor="let barber of barbers()" [value]="barber.id">
@@ -255,8 +252,9 @@
               type="date"
               id="serviceDate"
               class="form-control"
-              [value]="formData().serviceDate"
+              [(ngModel)]="formData().serviceDate"
               (change)="onInputChange($event, 'serviceDate')"
+              name="serviceDate"
             />
             <small class="form-text">Puedes registrar servicios del día actual o pasados</small>
           </div>
@@ -269,8 +267,9 @@
               id="serviceName"
               class="form-control"
               [class.is-invalid]="formErrors()['serviceName']"
-              [value]="formData().serviceName"
+              [(ngModel)]="formData().serviceName"
               (input)="onInputChange($event, 'serviceName')"
+              name="serviceName"
               placeholder="Ej: Corte Clásico, Barba, etc."
             />
             <small class="error-text" *ngIf="formErrors()['serviceName']">
@@ -286,8 +285,9 @@
               id="price"
               class="form-control"
               [class.is-invalid]="formErrors()['price']"
-              [value]="formData().price"
+              [(ngModel)]="formData().price"
               (input)="onInputChange($event, 'price')"
+              name="price"
               placeholder="0.00"
               step="0.01"
               min="0"
@@ -304,8 +304,9 @@
               id="paymentMethod"
               class="form-control"
               [class.is-invalid]="formErrors()['paymentMethod']"
-              [value]="formData().paymentMethod"
+              [(ngModel)]="formData().paymentMethod"
               (change)="onSelectChange($event, 'paymentMethod')"
+              name="paymentMethod"
             >
               <option value="efectivo">💵 Efectivo</option>
               <option value="tarjeta">💳 Tarjeta</option>
@@ -324,8 +325,9 @@
             <textarea
               id="comments"
               class="form-control"
-              [value]="formData().comments"
+              [(ngModel)]="formData().comments"
               (input)="onInputChange($event, 'comments')"
+              name="comments"
               placeholder="Notas adicionales sobre el servicio..."
               rows="3"
             ></textarea>
@@ -352,6 +354,87 @@
             <span *ngIf="!isEditMode()">💾 Guardar</span>
           </span>
           <span *ngIf="isSubmittingForm()">Procesando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Details Modal -->
+  <div class="modal-overlay" *ngIf="showDetailsModal()" (click)="closeServiceDetailsModal()">
+    <div class="modal-content details-modal" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h2>📋 Detalles del Servicio</h2>
+        <button class="btn-close" (click)="closeServiceDetailsModal()">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body" *ngIf="selectedServiceForDetails()">
+        <div class="details-grid">
+          <!-- Service Name -->
+          <div class="detail-item">
+            <span class="detail-label">📋 Servicio:</span>
+            <span class="detail-value">{{ selectedServiceForDetails()!.serviceName }}</span>
+          </div>
+
+          <!-- Barber -->
+          <div class="detail-item">
+            <span class="detail-label">✂️ Barbero:</span>
+            <span class="detail-value">{{ selectedServiceForDetails()!.barberName }}</span>
+          </div>
+
+          <!-- Price -->
+          <div class="detail-item">
+            <span class="detail-label">💵 Precio:</span>
+            <span class="detail-value price">{{ formatCurrency(selectedServiceForDetails()!.price) }}</span>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="detail-item">
+            <span class="detail-label">💳 Método de Pago:</span>
+            <span class="detail-value">{{ getPaymentMethodLabel(selectedServiceForDetails()!.paymentMethod) }}</span>
+          </div>
+
+          <!-- Date & Time -->
+          <div class="detail-item">
+            <span class="detail-label">📅 Fecha & Hora (Registro):</span>
+            <span class="detail-value">{{ formatDateAndTime(selectedServiceForDetails()!.createdAt) }}</span>
+          </div>
+
+          <!-- Service Date (if admin and different from created date) -->
+          <div class="detail-item" *ngIf="selectedServiceForDetails()!.serviceDate && currentUser()?.role === 'admin'">
+            <span class="detail-label">📅 Fecha del Servicio:</span>
+            <span class="detail-value">{{ formatDateOnly(selectedServiceForDetails()!.serviceDate!) }}</span>
+          </div>
+
+          <!-- Comments (Full) -->
+          <div class="detail-item full-width" *ngIf="selectedServiceForDetails()!.comments">
+            <span class="detail-label">📝 Comentarios:</span>
+            <span class="detail-value comments-full">{{ selectedServiceForDetails()!.comments }}</span>
+          </div>
+
+          <!-- No comments -->
+          <div class="detail-item full-width" *ngIf="!selectedServiceForDetails()!.comments">
+            <span class="detail-label">📝 Comentarios:</span>
+            <span class="detail-value text-muted">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          class="btn btn-secondary"
+          (click)="closeServiceDetailsModal()"
+        >
+          Cerrar
+        </button>
+        <button
+          *ngIf="currentUser()?.role === 'admin'"
+          class="btn btn-primary"
+          (click)="openEditServiceModal(selectedServiceForDetails()!); closeServiceDetailsModal()"
+        >
+          ✏️ Editar
         </button>
       </div>
     </div>

@@ -48,4 +48,16 @@ export class UserService {
   async getAvailableBarbers(): Promise<User[]> {
     return this.getUsersByRole('barber');
   }
+
+  // Get user by phone number
+  async getUserByPhone(phone: string): Promise<User | null> {
+    const users = await this.firestoreService.queryCollection<User>('users', [where('phone', '==', phone)]);
+    return users.length > 0 ? users[0] : null;
+  }
+
+  // Get user by clientcode
+  async getUserByClientCode(clientcode: string): Promise<User | null> {
+    const users = await this.firestoreService.queryCollection<User>('users', [where('clientcode', '==', clientcode)]);
+    return users.length > 0 ? users[0] : null;
+  }
 }

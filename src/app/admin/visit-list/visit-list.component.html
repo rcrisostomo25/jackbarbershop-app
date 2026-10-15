@@ -1,4 +1,14 @@
 <div class="visits-container">
+  <!-- Notification Modal -->
+  <app-notification-modal
+    [isVisible]="notificationVisible"
+    [type]="notificationType"
+    [title]="notificationTitle"
+    [message]="notificationMessage"
+    [autoCloseDelay]="notificationAutoCloseDelay"
+    (closed)="notificationVisible.set(false)"
+  ></app-notification-modal>
+
   <!-- Header Section -->
   <div class="visits-header">
     <h2>📝 Registro de Visitas (Programa de Fidelización)</h2>
@@ -37,7 +47,7 @@
         #searchInput
         type="text"
         class="form-control search-input"
-        placeholder="🔍 Buscar por celular, nombre o corte..."
+        placeholder="🔍 Buscar por celular, nombre, corte, servicio o barbero..."
         [(ngModel)]="searchQuery"
         (input)="searchVisits()"
         [disabled]="isLoading()"
@@ -87,6 +97,10 @@
             <h3>{{ visit.clientName }}</h3>
             <p class="phone">📱 {{ visit.clientPhone }}</p>
           </div>
+          <div class="visit-status-badge" [class]="getStatusBadge(visit.status).class">
+            <span class="status-icon">{{ getStatusBadge(visit.status).icon }}</span>
+            <span class="status-text">{{ getStatusBadge(visit.status).text }}</span>
+          </div>
           <div class="visit-actions">
             <button 
               class="btn-action btn-delete" 
@@ -106,6 +120,18 @@
             <span class="value">{{ visit.servicePerformed }}</span>
           </div>
 
+          <!-- Service Package (if available) -->
+          <div *ngIf="visit.service" class="service-package-section">
+            <span class="label">📦 Paquete de Servicio:</span>
+            <span class="value service-badge">{{ visit.service }}</span>
+          </div>
+
+          <!-- Barber Info (if available) -->
+          <div *ngIf="visit.barberName" class="barber-section">
+            <span class="label">💈 Barbero:</span>
+            <span class="value barber-name">{{ visit.barberName }}</span>
+          </div>
+
           <!-- Recommendations -->
           <div *ngIf="visit.recommendations" class="recommendations-section">
             <span class="label">💡 Recomendaciones:</span>
@@ -118,7 +144,87 @@
               {{ visit.visitDate | date:'short' }}
             </small>
           </div>
+
+          <!-- Approval Actions (Only for pending visits) -->
+          <div *ngIf="isPending(visit)" class="approval-actions">
+            <div class="approval-info">
+              <small class="text-muted">⏳ Pendiente de aprobación</small>
+            </div>
+            <div class="approval-buttons">
+              <button 
+                class="btn btn-success btn-sm" 
+                (click)="approveVisit(visit)"
+                [disabled]="isLoading() || approvalInProgress() === visit.id"
+                title="Aprobar visita"
+              >
+                <span *ngIf="approvalInProgress() !== visit.id">✅ Aprobar</span>
+                <span *ngIf="approvalInProgress() === visit.id" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              </button>
+              <button 
+                class="btn btn-danger btn-sm" 
+                (click)="rejectVisit(visit)"
+                [disabled]="isLoading() || approvalInProgress() === visit.id"
+                title="Rechazar visita"
+              >
+                <span *ngIf="approvalInProgress() !== visit.id">❌ Rechazar</span>
+                <span *ngIf="approvalInProgress() === visit.id" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Rejection Reason (Only for rejected visits) -->
+          <div *ngIf="visit.status === 'Rechazado' && visit.rejectionReason" class="rejection-info">
+            <small class="text-muted">📋 Motivo del rechazo:</small>
+            <p class="rejection-reason">{{ visit.rejectionReason }}</p>
+          </div>
+
+          <!-- Approval Details (For approved visits) -->
+          <div *ngIf="visit.status === 'Aprobado'" class="approval-info-details">
+            <small class="text-success">✅ Aprobado {{ visit.approvedAt | date:'short' }}</small>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-section" *ngIf="totalVisitsCount() > pageSize()">
+      <div class="pagination-info">
+        <span class="info-text">
+          Página {{ currentPageNumber() }} de {{ totalPages() }} 
+          ({{ filteredVisits().length }} de {{ totalVisitsCount() }} visitas)
+        </span>
+      </div>
+
+      <div class="pagination-controls">
+        <!-- Previous Button -->
+        <button 
+          class="btn btn-sm btn-secondary" 
+          (click)="previousPage()"
+          [disabled]="!hasPreviousPage() || isLoading()"
+          title="Página anterior">
+          ← Anterior
+        </button>
+
+        <!-- Page Numbers -->
+        <div class="page-numbers">
+          <button 
+            *ngFor="let pageNum of getPageNumbers()" 
+            class="page-btn"
+            [class.active]="pageNum === currentPageNumber()"
+            (click)="goToPage(pageNum)"
+            [disabled]="isLoading()">
+            {{ pageNum }}
+          </button>
+        </div>
+
+        <!-- Next Button -->
+        <button 
+          class="btn btn-sm btn-secondary" 
+          (click)="nextPage()"
+          [disabled]="!hasNextPage() || isLoading()"
+          title="Página siguiente">
+          Siguiente →
+        </button>
       </div>
     </div>
   </div>
@@ -154,36 +260,53 @@
             <span class="metric-value">{{ stat.totalVisits }}</span>
           </div>
 
+          <!-- Visit Status Breakdown -->
+          <div class="stat-metric stat-breakdown">
+            <div class="breakdown-item">
+              <span class="breakdown-label">✅ Aprobadas</span>
+              <span class="breakdown-value approved">{{ stat.approvedVisits }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">⏳ Pendientes</span>
+              <span class="breakdown-value pending">{{ stat.pendingVisits }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="breakdown-label">❌ Rechazadas</span>
+              <span class="breakdown-value rejected">{{ stat.rejectedVisits }}</span>
+            </div>
+          </div>
+
           <!-- Last Visit -->
           <div class="stat-metric" *ngIf="stat.lastVisit">
             <span class="metric-label">Última Visita</span>
             <span class="metric-value">{{ stat.lastVisit | date:'short' }}</span>
           </div>
 
-          <!-- Fidelization Progress -->
+          <!-- Fidelization Progress (Based on Approved Visits Only) -->
           <div class="progress-section">
             <div class="progress-bar-container">
               <div class="progress-bar">
-                <div class="progress-fill" [style.width]="(stat.totalVisits / 10 * 100) + '%'"></div>
+                <div class="progress-fill" [style.width]="(stat.approvedVisits / 10 * 100) + '%'"></div>
               </div>
-              <span class="progress-text">{{ stat.totalVisits }}/10 visitas para VIP</span>
+              <span class="progress-text">{{ stat.approvedVisits }}/10 visitas aprobadas para VIP</span>
             </div>
           </div>
 
-          <!-- Offers -->
+          <!-- Offers (Based on Approved Visits Only) -->
           <div class="offers-section">
             <span class="offers-label">🎁 Ofertas Disponibles:</span>
             <ul class="offers-list">
-              <li *ngIf="stat.totalVisits >= 1">Acceso a promociones generales</li>
-              <li *ngIf="stat.totalVisits >= 3">Descuento del 5% en servicios</li>
-              <li *ngIf="stat.totalVisits >= 5">Acceso a productos exclusivos</li>
-              <li *ngIf="stat.totalVisits >= 10">Corte gratis cada 10 visitas</li>
+              <li *ngIf="stat.approvedVisits >= 1">✓ Acceso a promociones generales</li>
+              <li *ngIf="stat.approvedVisits >= 3">✓ Descuento del 5% en servicios</li>
+              <li *ngIf="stat.approvedVisits >= 5">✓ Acceso a productos exclusivos</li>
+              <li *ngIf="stat.approvedVisits >= 10">✓ Corte gratis cada 10 visitas</li>
+              <li *ngIf="stat.approvedVisits === 0" class="no-offers">No hay ofertas disponibles aún (se requiere 1 visita aprobada)</li>
             </ul>
             <button 
               class="btn btn-offer-redeem" 
               (click)="openOfferRedemptionModal(stat)"
-              [disabled]="isLoading()"
-              title="Canjear ofertas de fidelización">
+              [disabled]="isLoading() || stat.approvedVisits === 0"
+              [title]="stat.approvedVisits > 0 ? 'Canjear ofertas de fidelización' : 'Se requieren visitas aprobadas para canjear ofertas'">
               🎁 Canjear Oferta
             </button>
           </div>

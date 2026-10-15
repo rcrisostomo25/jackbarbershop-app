@@ -1,0 +1,17 @@
+<div class="notification-overlay" *ngIf="isVisible()" (click)="close()">
+  <div class="notification-modal" [class]="'notification-' + type()" (click)="$event.stopPropagation()">
+    <div class="notification-header">
+      <div class="notification-icon">{{ getIcon() }}</div>
+      <h3 class="notification-title">{{ title() }}</h3>
+      <button class="notification-close" (click)="close()" title="Cerrar">✕</button>
+    </div>
+    
+    <div class="notification-body">
+      <p class="notification-message">{{ message() }}</p>
+    </div>
+
+    <div class="notification-footer">
+      <button class="btn-close" (click)="close()">Aceptar</button>
+    </div>
+  </div>
+</div>

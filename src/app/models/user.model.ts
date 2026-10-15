@@ -6,6 +6,7 @@ export interface User {
   role: 'customer' | 'barber' | 'admin';
   profilePicture?: string;
   apiKey?: string; // API key for public service registration (for barbers)
+  clientcode?: string; // Client code for customer registration (format: C00001) - for customers only
   createdAt: Date;
   updatedAt: Date;
 }

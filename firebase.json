@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "source": "functions",
+    "codebase": "default",
+    "runtime": "nodejs20"
+  },
   "hosting": {
     "public": "dist/jackbarbershop-app/browser",
     "ignore": [

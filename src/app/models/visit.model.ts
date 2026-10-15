@@ -7,16 +7,26 @@ export interface OfferRedemption {
   expiresAt?: Date;
 }
 
+export type VisitStatus = 'Registrado' | 'Aprobado' | 'Rechazado';
+
 export interface Visit {
   id?: string;
   clientPhone: string;
   clientName: string;
   clientId?: string; // Referencia al usuario si existe
+  service?: 'Jack Básico' | 'Jack Moderno' | 'Jack Vip' | 'Jack Premium'; // Servicio seleccionado
+  barberName?: string; // Nombre del barbero que realizó el servicio
   servicePerformed: string;
   recommendations?: string;
   visitDate: Date;
   createdAt: Date;
   createdBy?: string; // ID del admin que registró
+  status: VisitStatus; // Estado de la visita: Registrado, Aprobado, Rechazado
+  approvedBy?: string; // ID del admin que aprobó
+  approvedAt?: Date; // Fecha de aprobación
+  rejectedBy?: string; // ID del admin que rechazó
+  rejectedAt?: Date; // Fecha de rechazo
+  rejectionReason?: string; // Motivo del rechazo
   redeemedOffers?: OfferRedemption[]; // Ofertas canjeadas por este cliente
 }
 
@@ -37,6 +47,9 @@ export interface ClientVisitStats {
   phone: string;
   name: string;
   totalVisits: number;
+  approvedVisits: number; // Visitas aprobadas
+  rejectedVisits: number; // Visitas rechazadas
+  pendingVisits: number; // Visitas registradas (pendientes de aprobación)
   lastVisit?: Date;
   redeemedOffers?: OfferRedemption[];
 }
@@ -67,4 +80,13 @@ export interface RedemptionResponse {
   message: string;
   data?: OfferRedemption;
   error?: string;
+}
+
+export interface PaginatedVisitsResponse {
+  visits: Visit[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 }

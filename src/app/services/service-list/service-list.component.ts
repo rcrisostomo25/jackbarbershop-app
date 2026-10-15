@@ -56,6 +56,10 @@ export class ServiceListComponent implements OnInit {
   });
   formErrors = signal<{ [key: string]: string }>({});
 
+  // Service Details Modal
+  showDetailsModal = signal(false);
+  selectedServiceForDetails = signal<Service | null>(null);
+
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.initializeComponent();
@@ -115,72 +119,51 @@ export class ServiceListComponent implements OnInit {
         const endDate = new Date(endYear, endMonth - 1, endDay, 23, 59, 59, 999);
 
         if (user?.role === 'admin') {
-          services = await this.serviceService.getServices({
-            startDate,
-            endDate
-          });
-          
-          // Also get services with serviceDate in range
+          // Get all services and filter by serviceDate in the range
           const allServices = await this.serviceService.getServices({});
-          const servicesByServiceDate = allServices.filter(s => {
-            if (s.serviceDate) {
-              const serviceDate = new Date(s.serviceDate);
-              return serviceDate >= startDate && serviceDate <= endDate;
-            }
-            return false;
+          services = allServices.filter(s => {
+            const dateToCheck = s.serviceDate || s.createdAt;
+            const checkDate = new Date(dateToCheck);
+            return checkDate >= startDate && checkDate <= endDate;
           });
-          
-          // Merge and remove duplicates
-          const merged = [...services];
-          for (const service of servicesByServiceDate) {
-            if (!merged.find(s => s.id === service.id)) {
-              merged.push(service);
-            }
-          }
-          services = merged;
         } else if (user?.role === 'barber') {
-          services = await this.serviceService.getServices({
-            barberId: user.id,
-            startDate,
-            endDate
+          const allServices = await this.serviceService.getServices({
+            barberId: user.id
+          });
+          services = allServices.filter(s => {
+            const dateToCheck = s.serviceDate || s.createdAt;
+            const checkDate = new Date(dateToCheck);
+            return checkDate >= startDate && checkDate <= endDate;
           });
         }
       } else {
         // Load services by single date
         const dateString = this.selectedDate();
         const [year, month, day] = dateString.split('-').map(Number);
-        const date = new Date(year, month - 1, day, 0, 0, 0, 0);
+        const startDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+        const endDate = new Date(year, month - 1, day, 23, 59, 59, 999);
 
         if (user?.role === 'admin') {
-          // For admin, get services and filter by serviceDate if available, otherwise by createdAt
-          services = await this.serviceService.getServicesByDate(date);
-          
-          // Also get services from all time that have serviceDate matching the selected date
+          // Get all services and filter by serviceDate for the selected date
           const allServices = await this.serviceService.getServices({});
-          const servicesByServiceDate = allServices.filter(s => {
-            if (s.serviceDate) {
-              const serviceDate = new Date(s.serviceDate);
-              return serviceDate.getFullYear() === year && 
-                     serviceDate.getMonth() === month - 1 && 
-                     serviceDate.getDate() === day;
-            }
-            return false;
+          services = allServices.filter(s => {
+            const dateToCheck = s.serviceDate || s.createdAt;
+            const checkDate = new Date(dateToCheck);
+            return checkDate >= startDate && checkDate <= endDate;
           });
-          
-          // Merge and remove duplicates
-          const merged = [...services];
-          for (const service of servicesByServiceDate) {
-            if (!merged.find(s => s.id === service.id)) {
-              merged.push(service);
-            }
-          }
-          services = merged;
         } else if (user?.role === 'barber') {
-          services = await this.serviceService.getBarberServicesByDate(user.id!, date);
+          const allServices = await this.serviceService.getServices({
+            barberId: user.id
+          });
+          services = allServices.filter(s => {
+            const dateToCheck = s.serviceDate || s.createdAt;
+            const checkDate = new Date(dateToCheck);
+            return checkDate >= startDate && checkDate <= endDate;
+          });
         }
       }
 
-      // Apply barber filter if selected (only when not in date range mode or for admins)
+      // Apply barber filter if selected
       if (this.selectedBarberId()) {
         services = services.filter(s => s.barberId === this.selectedBarberId());
       }
@@ -335,6 +318,31 @@ export class ServiceListComponent implements OnInit {
       'otro': '📝 Otro'
     };
     return labels[method] || method;
+  }
+
+  /**
+   * Truncate text to specified length
+   */
+  truncateText(text: string | undefined, maxLength: number = 50): string {
+    if (!text) return '-';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  }
+
+  /**
+   * Open service details modal
+   */
+  openServiceDetailsModal(service: Service) {
+    this.selectedServiceForDetails.set(service);
+    this.showDetailsModal.set(true);
+  }
+
+  /**
+   * Close service details modal
+   */
+  closeServiceDetailsModal() {
+    this.showDetailsModal.set(false);
+    this.selectedServiceForDetails.set(null);
   }
 
   /**

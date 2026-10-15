@@ -4,6 +4,24 @@
     <div class="form-header">
       <h1>💇 Registro de Visita</h1>
       <p>Completa el formulario para registrar tu visita a la barbería</p>
+      
+      <!-- Barber Badge -->
+      <div class="barber-badge" *ngIf="barberName()">
+        <span class="badge-icon">💈</span>
+        <span class="badge-text">Barbero: {{ barberName() }}</span>
+      </div>
+      
+      <!-- Preloaded Client Badge -->
+      <div class="client-badge" *ngIf="preloadedClient()">
+        <span class="badge-icon">✅</span>
+        <span class="badge-text">Cliente identificado: {{ preloadedClient()?.displayName }}</span>
+      </div>
+
+      <!-- New Client Code Badge -->
+      <div class="new-code-badge" *ngIf="clientcode() && isNewClientCode()">
+        <span class="badge-icon">🆕</span>
+        <span class="badge-text">Se registrará como nuevo cliente con código: {{ clientcode() }}</span>
+      </div>
     </div>
 
     <!-- Error Message -->
@@ -19,8 +37,44 @@
     <!-- Form -->
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="visit-form">
       <div class="form-group">
+        <label for="clientPhone">
+          📱 Número de Teléfono <span class="required">*</span>
+          <span class="preloaded-badge" *ngIf="preloadedClient()">📝 Auto-completado</span>
+        </label>
+        <!-- Phone input with search button -->
+        <div class="input-group">
+          <input
+            type="tel"
+            id="clientPhone"
+            formControlName="clientPhone"
+            class="form-control"
+            [class.is-invalid]="form.get('clientPhone')?.invalid && (form.get('clientPhone')?.dirty || submitted())"
+            [class.is-preloaded]="preloadedClient()"
+            [readOnly]="!!preloadedClient()"
+            placeholder="Teléfono (mínimo 7 dígitos)"
+            inputmode="tel"
+          />
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="!form.get('clientPhone')?.valid || preloadedClient() || isSearchingPhone()"
+            (click)="searchClientByPhone()"
+            title="Buscar cliente por teléfono"
+          >
+            <span *ngIf="!isSearchingPhone()" class="search-icon">🔍</span>
+            <span *ngIf="isSearchingPhone()" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="invalid-feedback" *ngIf="form.get('clientPhone')?.invalid && (form.get('clientPhone')?.dirty || submitted())">
+          <span *ngIf="form.get('clientPhone')?.errors?.['required']">El teléfono es requerido</span>
+          <span *ngIf="form.get('clientPhone')?.errors?.['pattern']">Debe tener al menos 7 dígitos</span>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label for="clientName">
           👤 Nombre Completo <span class="required">*</span>
+          <span class="preloaded-badge" *ngIf="!isNameEditable()">📝 Auto-completado</span>
         </label>
         <input
           type="text"
@@ -28,6 +82,8 @@
           formControlName="clientName"
           class="form-control"
           [class.is-invalid]="form.get('clientName')?.invalid && (form.get('clientName')?.dirty || submitted())"
+          [class.is-preloaded]="!isNameEditable()"
+          [readOnly]="!isNameEditable()"
           placeholder="Tu nombre completo"
         />
         <div class="invalid-feedback" *ngIf="form.get('clientName')?.invalid && (form.get('clientName')?.dirty || submitted())">
@@ -37,21 +93,22 @@
       </div>
 
       <div class="form-group">
-        <label for="clientPhone">
-          📱 Número de Teléfono <span class="required">*</span>
+        <label for="service">
+          💈 Servicio <span class="required">*</span>
         </label>
-        <input
-          type="tel"
-          id="clientPhone"
-          formControlName="clientPhone"
+        <select
+          id="service"
+          formControlName="service"
           class="form-control"
-          [class.is-invalid]="form.get('clientPhone')?.invalid && (form.get('clientPhone')?.dirty || submitted())"
-          placeholder="Teléfono (mínimo 7 dígitos)"
-          inputmode="tel"
-        />
-        <div class="invalid-feedback" *ngIf="form.get('clientPhone')?.invalid && (form.get('clientPhone')?.dirty || submitted())">
-          <span *ngIf="form.get('clientPhone')?.errors?.['required']">El teléfono es requerido</span>
-          <span *ngIf="form.get('clientPhone')?.errors?.['pattern']">Debe tener al menos 7 dígitos</span>
+          [class.is-invalid]="form.get('service')?.invalid && (form.get('service')?.dirty || submitted())"
+        >
+          <option value="">Selecciona un servicio</option>
+          <option *ngFor="let serviceOption of serviceOptions" [value]="serviceOption">
+            {{ serviceOption }}
+          </option>
+        </select>
+        <div class="invalid-feedback" *ngIf="form.get('service')?.invalid && (form.get('service')?.dirty || submitted())">
+          <span *ngIf="form.get('service')?.errors?.['required']">El servicio es requerido</span>
         </div>
       </div>
 

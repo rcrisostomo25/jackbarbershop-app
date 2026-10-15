@@ -1,0 +1,401 @@
+<div class="sales-container">
+  <!-- Header -->
+  <div class="sales-header">
+    <h1>💰 Gestión de Ventas</h1>
+    <button class="btn btn-primary" (click)="openNewSaleModal()" *ngIf="currentUser()?.role === 'admin'">
+      ➕ Nueva Venta
+    </button>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-toggle">
+      <button class="btn btn-sm btn-secondary" (click)="toggleFilters()">
+        🔍 {{ showFilters() ? 'Ocultar' : 'Mostrar' }} Filtros
+      </button>
+      <button class="btn btn-sm btn-warning" (click)="resetFilters()">🔄 Limpiar Filtros</button>
+    </div>
+
+    <!-- Filters Panel -->
+    <div class="filters-panel" *ngIf="showFilters()">
+      <div class="filter-group">
+        <!-- Search -->
+        <div class="search-input-wrapper">
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="searchQuery"
+            (input)="loadSales()"
+            placeholder="🔍 Buscar producto, descripción..."
+          />
+        </div>
+
+        <!-- Date Selection -->
+        <div class="date-selection">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="useDateRange" (change)="loadSales()" />
+            Usar rango de fechas
+          </label>
+        </div>
+
+        <!-- Single Date Filter -->
+        <div class="date-filter-group" *ngIf="!useDateRange()">
+          <label>📅 Fecha:</label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="selectedDate"
+            (change)="loadSales()"
+          />
+        </div>
+
+        <!-- Date Range Filter -->
+        <div class="date-range-group" *ngIf="useDateRange()">
+          <div class="date-range-inputs">
+            <div>
+              <label>📅 Desde:</label>
+              <input
+                type="date"
+                class="form-control"
+                [(ngModel)]="dateRangeStart"
+                (change)="loadSales()"
+              />
+            </div>
+            <div>
+              <label>📅 Hasta:</label>
+              <input
+                type="date"
+                class="form-control"
+                [(ngModel)]="dateRangeEnd"
+                (change)="loadSales()"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <div class="card-icon">🛍️</div>
+      <div class="card-content">
+        <div class="card-label">Total de Ventas</div>
+        <div class="card-value">{{ totalSales() }}</div>
+      </div>
+    </div>
+    <div class="summary-card">
+      <div class="card-icon">💵</div>
+      <div class="card-content">
+        <div class="card-label">Ingresos Totales</div>
+        <div class="card-value">{{ formatCurrency(totalRevenue()) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-spinner" *ngIf="isLoading()">
+    <div class="spinner"></div>
+    <p>Cargando ventas...</p>
+  </div>
+
+  <!-- Sales Table -->
+  <div class="table-wrapper" *ngIf="!isLoading()">
+    <table class="sales-table">
+      <thead>
+        <tr>
+          <th>📦 Producto</th>
+          <th>📝 Descripción</th>
+          <th class="text-center">🔢 Cantidad</th>
+          <th class="d-none d-md-table-cell">💵 Precio Unit.</th>
+          <th class="d-none d-lg-table-cell">💰 Total</th>
+          <th class="d-none d-xl-table-cell">📅 Fecha</th>
+          <th class="d-none d-xxl-table-cell">💬 Comentarios</th>
+          <th class="text-center">⚙️ Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="sale-row" *ngFor="let sale of sales()">
+          <td class="product-name" (click)="openSaleDetailsModal(sale)" title="Click para ver detalles">
+            <span class="product-link">{{ sale.productName }}</span>
+          </td>
+          <td class="description">
+            <small>{{ truncateText(sale.description, 30) }}</small>
+          </td>
+          <td class="quantity text-center">
+            <span class="quantity-badge">{{ sale.quantity }}</span>
+          </td>
+          <td class="price d-none d-md-table-cell">
+            <span class="price-badge">{{ formatCurrency(sale.salePrice) }}</span>
+          </td>
+          <td class="total d-none d-lg-table-cell">
+            <span class="total-badge">{{ formatCurrency(sale.totalPrice) }}</span>
+          </td>
+          <td class="date-time d-none d-xl-table-cell">
+            <small>{{ formatDateAndTime(sale.saleDate || sale.createdAt) }}</small>
+          </td>
+          <td class="comments d-none d-xxl-table-cell">
+            <small class="comments-text">{{ truncateText(sale.comments, 40) }}</small>
+          </td>
+          <td class="actions text-center">
+            <div class="action-buttons">
+              <button
+                class="btn-action info"
+                (click)="openSaleDetailsModal(sale)"
+                title="Ver detalles"
+                type="button"
+              >
+                ℹ️
+              </button>
+              <button
+                *ngIf="currentUser()?.role === 'admin'"
+                class="btn-action edit"
+                (click)="openEditSaleModal(sale)"
+                title="Editar"
+                type="button"
+              >
+                ✏️
+              </button>
+              <button
+                *ngIf="currentUser()?.role === 'admin'"
+                class="btn-action delete"
+                (click)="deleteSale(sale.id!)"
+                title="Eliminar"
+                type="button"
+              >
+                🗑️
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- No sales message -->
+    <div class="no-data" *ngIf="sales().length === 0">
+      <p>No hay ventas registradas para los filtros seleccionados</p>
+    </div>
+  </div>
+
+  <!-- Sale Form Modal -->
+  <div class="modal" [class.active]="showSaleFormModal()">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h2 *ngIf="!isEditMode()">➕ Registrar Nueva Venta</h2>
+        <h2 *ngIf="isEditMode()">✏️ Editar Venta</h2>
+        <button class="btn-close" (click)="closeSaleFormModal()">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <form (ngSubmit)="submitSaleForm()">
+          <!-- Product Selection -->
+          <div class="form-group">
+            <label for="productId" class="form-label">Producto *</label>
+            <select
+              id="productId"
+              class="form-control"
+              [class.is-invalid]="formErrors()['productName']"
+              [(ngModel)]="formData().productId"
+              (change)="onSelectChange($event, 'productId')"
+              name="productId"
+            >
+              <option value="">Selecciona un producto</option>
+              <option *ngFor="let product of products()" [value]="product.id">
+                {{ product.name }}
+              </option>
+              <option value="otros">📝 Otros (Producto personalizado)</option>
+            </select>
+            <small class="error-text" *ngIf="formErrors()['productName']">
+              {{ formErrors()['productName'] }}
+            </small>
+          </div>
+
+          <!-- Product Name (if "otros" selected) -->
+          <div class="form-group" *ngIf="formData().productId === 'otros'">
+            <label for="productName" class="form-label">Nombre del Producto *</label>
+            <input
+              type="text"
+              id="productName"
+              class="form-control"
+              [(ngModel)]="formData().productName"
+              (input)="onInputChange($event, 'productName')"
+              name="productName"
+              placeholder="Ingresa el nombre del producto"
+            />
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label for="description" class="form-label">Descripción</label>
+            <textarea
+              id="description"
+              class="form-control"
+              [(ngModel)]="formData().description"
+              (input)="onInputChange($event, 'description')"
+              name="description"
+              placeholder="Detalles adicionales del producto..."
+              rows="2"
+            ></textarea>
+          </div>
+
+          <!-- Quantity -->
+          <div class="form-group">
+            <label for="quantity" class="form-label">Cantidad *</label>
+            <input
+              type="number"
+              id="quantity"
+              class="form-control"
+              [class.is-invalid]="formErrors()['quantity']"
+              [(ngModel)]="formData().quantity"
+              (input)="onInputChange($event, 'quantity')"
+              name="quantity"
+              placeholder="0"
+              min="1"
+              step="1"
+            />
+            <small class="error-text" *ngIf="formErrors()['quantity']">
+              {{ formErrors()['quantity'] }}
+            </small>
+          </div>
+
+          <!-- Sale Price -->
+          <div class="form-group">
+            <label for="salePrice" class="form-label">Precio de Venta (S/.) *</label>
+            <input
+              type="number"
+              id="salePrice"
+              class="form-control"
+              [class.is-invalid]="formErrors()['salePrice']"
+              [(ngModel)]="formData().salePrice"
+              (input)="onInputChange($event, 'salePrice')"
+              name="salePrice"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+            />
+            <small class="error-text" *ngIf="formErrors()['salePrice']">
+              {{ formErrors()['salePrice'] }}
+            </small>
+          </div>
+
+          <!-- Sale Date -->
+          <div class="form-group">
+            <label for="saleDate" class="form-label">Fecha de Venta 📅</label>
+            <input
+              type="date"
+              id="saleDate"
+              class="form-control"
+              [(ngModel)]="formData().saleDate"
+              (change)="onInputChange($event, 'saleDate')"
+              name="saleDate"
+            />
+            <small class="form-text">Puedes registrar ventas del día actual o pasadas</small>
+          </div>
+
+          <!-- Comments -->
+          <div class="form-group">
+            <label for="comments" class="form-label">Comentarios</label>
+            <textarea
+              id="comments"
+              class="form-control"
+              [(ngModel)]="formData().comments"
+              (input)="onInputChange($event, 'comments')"
+              name="comments"
+              placeholder="Notas adicionales sobre la venta..."
+              rows="2"
+            ></textarea>
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeSaleFormModal()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="submitSaleForm()"
+          [disabled]="isSubmittingForm()"
+        >
+          {{ isSubmittingForm() ? '⏳ Guardando...' : isEditMode() ? '✓ Actualizar' : '✓ Registrar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sale Details Modal -->
+  <div class="modal details-modal" [class.active]="showDetailsModal()">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h2>📦 Detalles de la Venta</h2>
+        <button class="btn-close" (click)="closeSaleDetailsModal()">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body" *ngIf="selectedSaleForDetails()">
+        <div class="details-grid">
+          <!-- Left Column -->
+          <div class="detail-column">
+            <div class="detail-item">
+              <span class="detail-label">📦 Producto:</span>
+              <span class="detail-value">{{ selectedSaleForDetails()?.productName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">📝 Descripción:</span>
+              <span class="detail-value">{{ selectedSaleForDetails()?.description || 'Sin descripción' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">🔢 Cantidad:</span>
+              <span class="detail-value">{{ selectedSaleForDetails()?.quantity }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">💵 Precio Unitario:</span>
+              <span class="detail-value">{{ formatCurrency(selectedSaleForDetails()?.salePrice!) }}</span>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div class="detail-column">
+            <div class="detail-item">
+              <span class="detail-label">💰 Total de Venta:</span>
+              <span class="detail-value highlight">{{ formatCurrency(selectedSaleForDetails()?.totalPrice!) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">📅 Fecha de Venta:</span>
+              <span class="detail-value">{{ formatDateAndTime(selectedSaleForDetails()?.saleDate!) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">📅 Fecha de Registro:</span>
+              <span class="detail-value">{{ formatDateAndTime(selectedSaleForDetails()?.createdAt!) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">💬 Comentarios:</span>
+              <span class="detail-value">{{ selectedSaleForDetails()?.comments || 'Sin comentarios' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeSaleDetailsModal()"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
